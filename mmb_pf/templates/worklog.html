@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block main_menu %}
+    {% include "main_menu.html" %}
+{% endblock %}
+
+{% block body %}
+<div class="page">
+    {% include "header.html" %}
+    <div id="worklog" class="mt-1 p-2">
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-list">
+                    <div class="card-header white d-flex justify-content-between align-items-center py-3">
+                        <div class="col-12">
+                            <p class="h5-responsive font-weight-bold mb-0 mx-auto app-header">Журнал разработки системы</p>
+                            <ul class="list-unstyled d-flex align-items-center mb-0">
+
+                                <!-- <li><i class="far fa-window-minimize fa-sm pl-3"></i></li>
+                                <li><i class="fas fa-times fa-sm pl-3"></i></li> -->
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <ul class="nav nav-tabs" id="stageTabs" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link" id="stage1-tab" role="tab" @click="current_tab='stage1'" data-toggle="tab">Этап 1 (v0.1.0 - v1.x.x)</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 mt-3">
+                                <span class="h3 text-black-50"><i class="fas fa-tools"></i> Текущий прогресс разработки</span>
+                                <div class="progress">
+                                    <div class="progress-bar bg-success" role="progressbar" :style="calcWidthPb({get_class: 'success', 'data': table_data[current_tab]})">-* calcWidthPb({'get_pct': 'success', 'data': table_data[current_tab]}) *-</div>
+                                    <div class="progress-bar progress-bar-striped bg-warning" role="progressbar" :style="calcWidthPb({get_class: 'warning', 'data': table_data[current_tab]})"></div>
+                                    <div class="progress-bar bg-info progress-bar-striped progress-bar-animated" role="progressbar" :style="calcWidthPb({get_class: 'info', 'data': table_data[current_tab]})"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer white py-3 d-flex justify-content-between">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Блок</th>
+                                    <th scope="col">Описание</th>
+                                    <th scope="col"><i class="d-block d-md-none far fa-lightbulb"></i><span class="d-none d-md-block"> Состояние</span></th>
+                                </tr>
+                            </thead>
+                            <tbody class="autoincrement">
+                                <tr v-for="data_row in table_data[current_tab]">
+                                    <th scope="row"></th>
+                                    <td><a class="text-primary" :href="data_row.href">-* data_row.name *-</a></td>
+                                    <td class="pt-2 pb-0">-* data_row.desc *-</td>
+                                    <td><span :class="task_categories[data_row.status].statuses_classes">
+                                        <i :class="task_categories[data_row.status].badge_icon_classes"></i>
+                                        <span class="d-none d-md-block"> -* data_row.status *- </span>
+                                    </span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include "footer.html" %}
+</div>
+<script>
+    let worklog = new Vue({
+        el: '#worklog',
+        delimiters: ['-*', '*-'],
+        data: function () {
+            return {
+                appLoading: true,
+                err_msg: '',
+                info_msg: '',
+                task_categories: {
+                    'Работы не начинались': {
+                        badge_icon_classes: 'd-block d-md-none far fa-circle',
+                        statuses_classes: 'badge badge-light',
+                    },
+                    'В разработке': {
+                        badge_icon_classes: 'd-block d-md-none fas fa-hammer',
+                        statuses_classes: 'badge badge-info',
+                    },
+                    'Работы приостановлены': {
+                        badge_icon_classes: 'd-block d-md-none fas fa-hourglass-half',
+                        statuses_classes: 'badge badge-warning',
+                    },
+                    'Завершено': {
+                        badge_icon_classes: 'd-block d-md-none far fa-check-circle',
+                        statuses_classes: 'badge badge-success',
+                    },
+                },
+                current_tab: 'stage1',
+                table_data: {
+                    'stage1': [
+                        {
+                            'name': 'Перенести основную нарезку блоков и приложений',
+                            'href': '/',
+                            'desc': 'Отрезаем всё ненужное',
+                            'status': 'В разработке',
+                        },
+                        {
+                            'name': 'Переработать цветовую схему',
+                            'href': '/',
+                            'desc': 'Чтобы не было копией системы донора',
+                            'status': 'В разработке',
+                        },
+                        {
+                            'name': 'Создать карточку пользователя',
+                            'href': '#',
+                            'desc': 'Это позволит создать все таблицы в базе',
+                            'status': 'Работы не начинались',
+                        },
+                        {
+                            'name': 'Сделать карточку пользователя редактируемой',
+                            'href': '#',
+                            'desc': 'фронт+бек',
+                            'status': 'Работы не начинались',
+                        },
+                        {
+                            'name': 'Сверстать таблицу адресной книги + реактивный поиск',
+                            'href': '#',
+                            'desc': 'По нажатию на кнопку - переход в карточку пользователя, с возможностью редактировать',
+                            'status': 'Работы не начинались',
+                        },
+                        {
+                            'name': 'Добавить всю логику загрузки карты в систему',
+                            'href': '#',
+                            'desc': 'Лоадер картинки для админа, блок в меню для отображения',
+                            'status': 'Работы не начинались',
+                        },
+                        {
+                            'name': 'Проработать вопрос загрузки участников и другой инфы из основного сайта',
+                            'href': '#',
+                            'desc': 'Данные по участникам, командам и чтото ещё заводятся в другой системе, нам их надо к себе прогрузить.',
+                            'status': 'Работы не начинались',
+                        },
+                        {
+                            'name': 'Проработать вопрос очистки базы данных к исходному пустому состоянию',
+                            'href': '#',
+                            'desc': 'Очищаем таблицы по кнопке в админке/фронте, возможно с подтверждением каким-либо',
+                            'status': 'Работы не начинались',
+                        },
+                    ],
+                },
+            }
+        },
+        methods: {
+            calcWidthPb: function (args) {
+                // data - for calculations
+                // get_class - if defined css classes
+                // get_pct - if defined pct text returned
+                let returnedWidth = "width: ";
+                let statuses = {
+                    'success': 'Завершено',
+                    'warning': 'Работы приостановлены',
+                    'info': 'В разработке',
+                };
+                let statusCalc = {
+                    'Завершено': 0,
+                    'Работы приостановлены': 0,
+                    'В разработке': 0,
+                };
+                args.data.forEach(function(row_obj, i, arr) {
+                    statusCalc[row_obj.status]++;
+                });
+                let type = args.get_class ? args.get_class : args.get_pct
+                let pct = Math.round(statusCalc[statuses[type]] * 100 / args.data.length);
+                if (args.get_class) {
+                    returnedWidth += pct + "%";
+                    return returnedWidth;
+                } else if (args.get_pct) {
+                    return pct + "%";
+                }
+            },
+        },
+        created() {
+        },
+    })
+</script>
+{% endblock %}

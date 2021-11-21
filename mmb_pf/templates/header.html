@@ -1,0 +1,113 @@
+<!-- header -->
+<header id="header" class="header">
+    <nav class="navbar">
+        <div class="container-fluid px-1">
+            <div v-if="appLoading" class="text-center py-5">
+                <div class="logo-wrapper spinner-grow text-info" role="status" style="width: 3rem; height: 3rem;">
+                </div>
+            </div>
+            <div v-else class="navbar-holder d-flex align-items-center justify-content-between">
+                <div class="navbar-header row pl-2">
+                    <div class="mx-1">
+                        <a id="menu-toggle-btn" href="#" class="menu-btn btn-md rounded align-bottom" @click=menu_button_action()>
+                            <!-- <i class="fas fa-angle-double-left fa-2x mt-2"></i> -->
+                            <i class="fas fa-bars fa-2x mt-2"></i>
+                        </a>
+                    </div>
+                    <div class="">
+                        <a class="menu-btn btn-md rounded align-bottom w-100 mx-1" href="/admin">
+                            <i class="fas fa-toolbox fa-2x mt-2"></i>
+                        </a>
+                    </div>
+                    <div class="">
+                        <a class="menu-btn btn-md rounded align-bottom w-100 mx-1" href="/administration/change_my_password">
+                            <i class="fas fa-key fa-2x mt-2"></i>
+                        </a>
+                    </div>
+                </div>
+                <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center pl-0">
+                    <!-- Log out-->
+                    <li class="nav-item">
+                        <div class="dropdown">
+                            <a class="btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                                <span class="">==* user_status.username *==</span>
+                            </a>
+                            <div class="dropdown-menu">
+                                <div v-if="user_status.username">
+                                    <h6 class="dropdown-header">Ваши группы прав</h6>
+                                    <p v-for="group in user_status.groups" class="text-xsmall text-gray m-0">==* group *==</p>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="text-xsmall p-0 text-primary" href="/accounts/logout">Выход</a>
+                                </div>
+                                <div v-else>
+                                    <a class="text-xsmall p-0 text-primary" href="/accounts/login">Войти</a>
+                                </div>
+                            </div>
+                          </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+<!-- header end -->
+<script>
+    let header = new Vue({
+        el: '#header',
+        delimiters: ['==*', '*=='],
+        data: function () {
+            return {
+                appLoading: true,
+                user_status: {}
+            }
+        },
+        methods: {
+            menu_button_action: function () {
+                // TODO: think about show in ready size - without animation
+                // let mainMenuCollapsed = getCookie('mainMenuCollapsed');
+                // if (mainMenuCollapsed && mainMenuCollapsed === "false") {
+                //     setCookie('mainMenuCollapsed', "true");
+                // } else {
+                //     setCookie('mainMenuCollapsed', "false");
+                // }
+                if ($(window).outerWidth() > 1199) {
+                    $('nav.side-navbar').toggleClass('shrink');
+                    $('nav.side-navbar').toggleClass('hide-md');
+                    $('.page').toggleClass('sidebar-closed-lg');
+                } else if ($(window).outerWidth() > 768) {
+                    $('nav.side-navbar').toggleClass('shrink');
+                    $('nav.side-navbar').toggleClass('hide-md');
+                    $('.page').toggleClass('sidebar-closed-lg');
+                } else {
+                    $('nav.side-navbar').toggleClass('open-sm');
+                    $('.page').toggleClass('sidebar-opened-sm');
+                }
+            }
+        },
+        created() {
+            let self = this;
+            // Should be vuex used!
+            let max_retries = 1000;
+            new Promise((resolve, reject) => {
+                get_user_status_interval = setInterval( function () {
+                    if (!!Object.keys(main_menu.user_status).length) {
+                        clearInterval(get_user_status_interval);
+                        resolve(main_menu.user_status);
+                    } else {
+                        if (max_retries < 0) {
+                            clearInterval(get_user_status_interval);
+                            reject(false);
+                        }
+                    }
+                }, 100);
+                max_retries--;
+            }).then(result => {
+                Vue.set(self, 'user_status', result);
+                self.appLoading = false;
+            }).catch(err => {
+                console.log("Header fails to load user_status object");
+                self.appLoading = false;
+            });
+        },
+    })
+</script>

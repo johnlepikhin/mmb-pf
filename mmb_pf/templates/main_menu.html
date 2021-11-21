@@ -1,0 +1,94 @@
+<!-- Main menu start -->
+<nav id="main_menu" class="side-navbar">
+    <div class="side-navbar-wrapper">
+        <!-- Sidebar Header    -->
+        <div class="d-flex align-items-center justify-content-center">
+            <!-- main logo -->
+            <div class="sidenav-header-inner text-center">
+                <a href="/">
+                    <img src="/static/assets/mmb_logo.png" alt="MMB PF logo" class="img-fluid rounded-circle">
+                </a>
+            </div>
+            <!-- Small logo for minimized sidebar -->
+            <div class="">
+                <a href="/" class="brand-small text-center">
+                    <h1 class="mt-3 sidenav-header-logo">ММБ</h1>
+                </a>
+            </div>
+        </div>
+        <!-- Sidebar Navigation Menus-->
+        <div v-if="appLoading" class="text-center">
+            <div class="logo-wrapper spinner-grow text-info" role="status" style="width: 3rem; height: 3rem;">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+        <div v-else-if="err_msg" class="pt-2 px-2">
+            <div class="alert alert-danger">
+                <strong>Ошибка!</strong> ==* err_msg *==
+            </div>
+        </div>
+        <div v-else-if="info_msg" class="pt-2 px-2">
+            <div class="alert alert-info">
+                <strong>Информация!</strong> ==* info_msg *==
+            </div>
+        </div>
+        <div v-else class="main-menu">
+            <!-- <h5 class="sidenav-heading">Main</h5> -->
+            <ul id="side-main-menu" class="side-menu list-unstyled">
+                <li v-for="menu_obj in main_menu">
+                    <a v-if="menu_obj.menu_type == 'dropdown'" :href="'#'+menu_obj.tid" data-toggle="collapse" aria-expanded="false" @click="setCookie('subMenuOpened', menu_obj.tid)">
+                        <span class="category-header"><i :class="menu_obj.icon"></i> ==* menu_obj.name *==</span>
+                    </a>
+                    <a v-else-if="menu_obj.menu_type == 'fixed'" href="#">
+                        <span class="category-header"><i :class="menu_obj.icon"></i> ==* menu_obj.name *==</span>
+                    </a>
+                    <ul :id="menu_obj.tid" :class="subMenuClass(menu_obj)">
+                        <li v-for="submenu_obj in menu_obj.items">
+                            <a :href="submenu_obj.url">==* submenu_obj.name *== </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<!-- Main menu end -->
+<script>
+    let main_menu = new Vue({
+        el: '#main_menu',
+        delimiters: ['==*', '*=='],
+        data: function () {
+            return {
+                main_menu: [],
+                appLoading: true,
+                err_msg: '',
+                info_msg: '',
+                user_status: {},
+            }
+        },
+        methods: {
+            subMenuClass: function (menu_obj) {
+                let returnedClass = {'collapse': true, 'list-unstyled': true};
+                if (menu_obj.menu_type == 'fixed') {
+                    returnedClass.show = true;
+                }
+                let opened = getCookie('subMenuOpened');
+                if (menu_obj.tid == opened) {
+                    returnedClass.show = true;
+                }
+                return returnedClass;
+            },
+        },
+        created() {
+            let self = this;
+            const loadable_fields = [
+                {'url': '/api/v1/main/user_status/', 'var': 'user_status'},
+                {'url': '/api/v1/main/menu/', 'var': 'main_menu'},
+            ];
+
+            loadItems({'load': loadable_fields, 'self': self, 'sync': true}).then(() => {
+                self.appLoading = false;
+            });
+        },
+    })
+</script>

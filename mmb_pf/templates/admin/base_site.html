@@ -1,0 +1,17 @@
+{% extends "admin/base_site.html" %}
+{% block extrahead %}
+    <style>
+        /* group rights selector size */
+        #id_permissions {
+            height: 500px;
+            min-height: 150px;
+            width: 625px;
+        }
+        .outer_jsoneditor {
+            height: 500px;
+        }
+        .vManyToManyRawIdAdminField {
+            width: 70% !important;
+        }
+    </style>
+{% endblock %}

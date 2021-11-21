@@ -1,0 +1,10 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block form_top %}
+  {% if not is_popup %}
+    <p>{% trans 'Заполните обязательные поля для создания пользователя, не забудьте выбрать группу прав' %}</p>
+  {% else %}
+    <p>{% trans "Создание нового пользователя" %}</p>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,17 @@
+[Unit]
+Description=uwsgi service for mmb_pf project
+After=syslog.target postgresql.service
+
+[Service]
+User=mmb-pf
+Group=mmb-pf
+ExecStart=/opt/mmb_pf/venv/bin/uwsgi --ini /opt/mmb_pf/mmb_pf_uwsgi.ini
+# Requires systemd version 211 or newer
+RuntimeDirectory=uwsgi_mmb_pf
+Restart=always
+KillSignal=SIGQUIT
+Type=notify
+StandardError=syslog
+NotifyAccess=all
+[Install]
+WantedBy=multi-user.target

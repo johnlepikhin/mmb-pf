@@ -1,0 +1,10 @@
+{% extends 'admin/change_list.html' %}
+
+{% block object-tools %}
+    <div class="row">
+        <font size="4" color="#33b5e5" face="Arial">Информация!</font>
+        <span class="h3"> Некоторые настройки требуют перезапуска системы для применения изменений</span>
+    </div>
+    <br>
+    {{ block.super }}
+{% endblock %}

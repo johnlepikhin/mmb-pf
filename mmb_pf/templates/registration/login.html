@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load mmb_pf_tags %}
+{% block body %}
+<script>
+    $(document).ready(function () {
+        $('.page').toggleClass('sidebar-closed-lg');
+        $('.page').toggleClass('sidebar-closed-lg-login');
+    });
+</script>
+<div class="page login-page">
+    <div class="container d-flex align-items-center">
+        <div class="form-outer text-center d-flex align-items-center">
+            <div class="form-inner">
+                <h1 class="display-10"><i class="fas fa-map-marked-alt"></i> ММБ ПФ</h1>
+                <p>Московский Мракобесный Батальон Полуфинал</p>
+                <p>Система помощи участникам</p>
+                <form method="post" class="text-left form-validate" action="{% url 'login' %}">
+                    {% if next != "/" %}
+                        {% if user.is_authenticated %}
+                        <p class="text-danger">Недостаточно прав для открытия этой страницы.</p>
+                        {% endif %}
+                    {% endif %}
+                    <div class="form-group-material">
+                        <input id="username" type="text" name="username" required data-msg="Введите логин" class="input-material">
+                        <label for="username" class="label-material">Пользователь</label>
+                    </div>
+                    <div class="form-group-material">
+                        <input id="password" type="password" name="password" required data-msg="Введите пароль" class="input-material">
+                        <label for="password" class="label-material">Пароль</label>
+                    </div>
+                    <button class="btn btn-sm btn-primary btn-block" type="submit" value="login">Вход</button>
+                    <input type="hidden" name="next" value="{{ next | check_next }}" />
+                    {% csrf_token %}
+                </form>
+                <!-- <a href="#" class="forgot-pass">Forgot Password?</a> -->
+                {% if form.errors %}
+                <p class="pt-0 text-danger">Неверные данные для входа</p>
+                {% endif %}
+                <div class="pt-3 pb-0">
+                    <p class="text-gray">ММБ: <strong>{{ "0.0.0"|get_mmb_pf_version }}</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- {% include "footer.html" %} -->
+{% endblock %}

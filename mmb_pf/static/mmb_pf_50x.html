@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>ММБ ПФ</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="shortcut icon" href="/favicon.ico?v=2" type="image/x-icon"/>
+        <link rel="stylesheet" href="/static/fontawesome-free/css/fontawesome.css">
+        <link rel="stylesheet" href="/static/fontawesome-free/css/regular.css">
+        <link rel="stylesheet" href="/static/fontawesome-free/css/solid.css">
+
+        <!-- Bootstrap core CSS -->
+        <link rel="stylesheet" href="/static/mdb/css/bootstrap.min.css">
+        <!-- Material Design Bootstrap -->
+        <link rel="stylesheet" href="/static/mdb/css/mdb.min.css">
+        <link rel="stylesheet" href="/static/mdb/css/style.css">
+        <!-- Custom Scrollbar-->
+        <link rel="stylesheet" href="/static/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css">
+
+        <!-- System styles -->
+        <link type="text/css" rel="stylesheet" href="/static/mmb_pf.css" media="all">
+        <!-- jQuery -->
+        <script type="text/javascript" src="/static/mdb/js/jquery.min.js"></script>
+        <!-- Bootstrap tooltips -->
+        <script type="text/javascript" src="/static/mdb/js/popper.min.js"></script>
+        <!-- Bootstrap core JavaScript -->
+        <script type="text/javascript" src="/static/mdb/js/bootstrap.min.js"></script>
+        <!-- MDB core JavaScript -->
+        <script type="text/javascript" src="/static/mdb/js/mdb.min.js"></script>
+        <script src="/static/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js"></script>
+        <!-- System js -->
+        <script type="text/javascript" src="/static/vue.min.js"></script>
+        <script type="text/javascript" src="/static/mmb_pf.js"></script>
+        <script type="text/javascript" src="/static/mmb_pf_frontend.js"></script>
+    </head>
+    <body>
+        <div class="container-fluid login-page d-flex align-items-center">
+            <div class="form-outer text-center d-flex align-items-center">
+                <div class="jumbotron">
+                    <h1 class="display-10"><i class="fas fa-tools"></i> ММБ ПФ находится на обслуживании</h1>
+                    <hr class="my-4">
+                    <p class="lead">Это займёт некоторое время, пожалуйста ожидайте</p>
+                    <p class="lead">Время завершения работ: <span class="text-black text-bold">18:00</span> </p>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const isIe = !!window.MSInputMethodContext && !!document.documentMode;
+            if (isIe) {
+                $('body').html(
+                    "<div class=\"alert alert-success w-80\" role=\"alert\">" +
+                    "   <h4 class=\"alert-heading\">К сожалению, этот браузер не поддерживается<\/h4>" +
+                    "   <p>Internet Explorer является устаревшим и его развитие прекращено в компании Microsoft.<\/p>" +
+                    "   <hr>"+
+                    "   <p class=\"mb-0\">Используйте любой современный браузер для работы с системой: <a href=\"https://www.google.com/chrome/?hl=ru\" class=\"alert-link\">Chrome</a>, \
+                    <a href=\"https://www.mozilla.org/ru/firefox/new/\" class=\"alert-link\">FireFox</a>, \
+                    <a href=\"https://browser.yandex.ru/\" class=\"alert-link\">Yandex</a>, \
+                    Safari, \
+                    <a href=\"https://www.opera.com/ru/\" class=\"alert-link\">Opera</a><\/p>" +
+                    "</div>"
+                );
+            }
+        </script>
+    </body>
+</html>
