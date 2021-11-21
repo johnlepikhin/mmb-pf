@@ -1,4 +1,4 @@
 # Django things
 settings_dev.py
-settings_prod.py
+settings.py
 __pycache__
