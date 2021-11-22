@@ -2,6 +2,10 @@ from django.core.cache import cache
 
 from administration.models import SystemSettings
 
+from .settings import BASE_DIR
+
+this_instance_pref = str(BASE_DIR).replace("/", "-")
+
 
 def get_system_status_cache(func):
     """
@@ -22,7 +26,7 @@ def get_system_status_cache(func):
             # do not fail if user without groups or auth system is off
             pass
 
-        cache_name = f"system_status_cache_{group_id}"
+        cache_name = f"{this_instance_pref}-system_status_cache_{group_id}"
         cache_data = cache.get(cache_name)
         if not cache_data:
             cache_data = func(self, **kwargs)
@@ -56,7 +60,7 @@ def get_main_menu_cache(func):
             # do not fail if user without groups or auth system is off
             pass
 
-        cache_name = f"main_menu_cache_{group_id}"
+        cache_name = f"{this_instance_pref}-main_menu_cache_{group_id}"
         cache_data = cache.get(cache_name)
         if not cache_data:
             cache_data = func(self, **kwargs)
@@ -84,7 +88,7 @@ def get_user_status_cache(func):
     def user_status_cache(self, **kwargs):
         user_id = self.user.id
 
-        cache_name = f"user_status_cache_{user_id}"
+        cache_name = f"{this_instance_pref}-user_status_cache_{user_id}"
         cache_data = cache.get(cache_name)
         if not cache_data:
             cache_data = func(self, **kwargs)
@@ -114,7 +118,7 @@ def scheduler_tasks_counter_cache(**kwargs):
     if "increment_task" in kwargs and not kwargs["increment_task"] in known_tasks:
         raise ValueError(f"task {kwargs['increment_task']} is unknown")
 
-    cache_name = "scheduler_tasks_counter"
+    cache_name = f"{this_instance_pref}-scheduler_tasks_counter"
     cache_data = cache.get(cache_name)
 
     if not cache_data:
