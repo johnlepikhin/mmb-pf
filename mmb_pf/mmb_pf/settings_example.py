@@ -146,7 +146,7 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.BasicAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ],
-    # "EXCEPTION_HANDLER": "essystem.drf_api.custom_exception_handler",
+    "EXCEPTION_HANDLER": "mmb_pf.drf_api.custom_exception_handler",
 }
 
 TEMPLATES = [

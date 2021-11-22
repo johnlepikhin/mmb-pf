@@ -2,7 +2,7 @@
 settings_dev.py
 settings_prod.py
 settings.py
-mmb_pf/media/upload/**
+media/upload/**
 
 # Python things
 __pycache__

@@ -95,7 +95,7 @@ class MMBPFUsersAdmin(UserAdmin):
                     "username",
                     "password1",
                     "password2",
-                    "is_staff",
+                    "tourist_club",
                     "groups",
                 ),
             },
@@ -144,10 +144,10 @@ class MMBPFUsersAdmin(UserAdmin):
             "Дополнительная информация",
             {
                 "fields": (
-                    # (
-                    #     "photos",
-                    #     "files",
-                    # ),
+                    (
+                        "images",
+                        #     "files",
+                    ),
                     ("user_desc",),
                 )
             },

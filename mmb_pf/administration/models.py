@@ -19,105 +19,6 @@ image_storage_shared = FileSystemStorage(location=f"{settings.BASE_DIR}/media")
 constant_models = get_constant_models()
 
 
-class MMBPFUsers(AbstractUser):
-    """
-    This is users of the MMB PF system
-    """
-
-    user_type = models.PositiveSmallIntegerField(
-        choices=constant_models["USER_TYPE"]["choices"],
-        default=constant_models["USER_TYPE"]["default"],
-        help_text="Тип пользователя",
-    )
-
-    modification_date = models.DateTimeField(
-        auto_now=True,
-        unique=False,
-        blank=False,
-        null=False,
-        help_text="Время последней модификации основных данных",
-    )
-    first_name = models.CharField(
-        default="",
-        unique=False,
-        blank=False,
-        max_length=512,
-        help_text="Имя",
-    )
-    last_name = models.CharField(
-        default="",
-        unique=False,
-        blank=False,
-        max_length=512,
-        help_text="Фамилия",
-    )
-    patronymic = models.CharField(
-        default="",
-        unique=False,
-        blank=True,
-        max_length=512,
-        help_text="Отчество",
-    )
-    gender = models.PositiveSmallIntegerField(
-        choices=constant_models["GENDER"]["choices"],
-        default=constant_models["GENDER"]["default"],
-        blank=True,
-    )
-    phone = models.CharField(
-        default="",
-        unique=False,
-        blank=True,
-        max_length=128,
-        help_text="Телефон",
-    )
-    email = models.EmailField(
-        default="",
-        unique=False,
-        blank=True,
-        help_text="Почта",
-    )
-    birth = models.DateField(
-        blank=True,
-        null=True,
-        help_text="Дата рождения",
-    )
-    tourist_club = models.CharField(
-        default="",
-        unique=False,
-        blank=True,
-        max_length=1024,
-        help_text="Название туристического клуба если есть",
-    )
-
-    # photos = models.ManyToManyField(ImageStorage, blank=True, related_name="user_images")
-    # files = models.ManyToManyField(FilePrivateStorage, blank=True, related_name="user_files")
-
-    user_desc = models.TextField(
-        default="",
-        blank=True,
-        max_length=32768,
-        help_text="Заметки о пользователе",
-    )
-
-    def __str__(self):
-        return str(self.username)
-
-    class Meta:
-        verbose_name_plural = "Пользователи"
-
-
-class MMBPFGroups(Group):
-    desc = models.TextField(
-        default="",
-        blank=True,
-        max_length=2000,
-        help_text="Описание группы",
-    )
-
-    class Meta:
-        verbose_name_plural = "Группы"
-
-
 class SystemSettingsMananger(models.Manager):
     def get_option(self, **kwargs):
         """
@@ -386,3 +287,102 @@ class ImageStorage(models.Model):
 
     class Meta:
         verbose_name_plural = "Хранилище изображений"
+
+
+class MMBPFUsers(AbstractUser):
+    """
+    This is users of the MMB PF system
+    """
+
+    user_type = models.PositiveSmallIntegerField(
+        choices=constant_models["USER_TYPE"]["choices"],
+        default=constant_models["USER_TYPE"]["default"],
+        help_text="Тип пользователя",
+    )
+
+    modification_date = models.DateTimeField(
+        auto_now=True,
+        unique=False,
+        blank=False,
+        null=False,
+        help_text="Время последней модификации основных данных",
+    )
+    first_name = models.CharField(
+        default="",
+        unique=False,
+        blank=False,
+        max_length=512,
+        help_text="Имя",
+    )
+    last_name = models.CharField(
+        default="",
+        unique=False,
+        blank=False,
+        max_length=512,
+        help_text="Фамилия",
+    )
+    patronymic = models.CharField(
+        default="",
+        unique=False,
+        blank=True,
+        max_length=512,
+        help_text="Отчество",
+    )
+    gender = models.PositiveSmallIntegerField(
+        choices=constant_models["GENDER"]["choices"],
+        default=constant_models["GENDER"]["default"],
+        blank=True,
+    )
+    phone = models.CharField(
+        default="",
+        unique=False,
+        blank=True,
+        max_length=128,
+        help_text="Телефон",
+    )
+    email = models.EmailField(
+        default="",
+        unique=False,
+        blank=True,
+        help_text="Почта",
+    )
+    birth = models.DateField(
+        blank=True,
+        null=True,
+        help_text="Дата рождения",
+    )
+    tourist_club = models.CharField(
+        default="",
+        unique=False,
+        blank=True,
+        max_length=1024,
+        help_text="Название туристического клуба если есть",
+    )
+
+    images = models.ManyToManyField(ImageStorage, blank=True, related_name="user_images")
+    # files = models.ManyToManyField(FilePrivateStorage, blank=True, related_name="user_files")
+
+    user_desc = models.TextField(
+        default="",
+        blank=True,
+        max_length=32768,
+        help_text="Заметки о пользователе",
+    )
+
+    def __str__(self):
+        return str(self.username)
+
+    class Meta:
+        verbose_name_plural = "Пользователи"
+
+
+class MMBPFGroups(Group):
+    desc = models.TextField(
+        default="",
+        blank=True,
+        max_length=2000,
+        help_text="Описание группы",
+    )
+
+    class Meta:
+        verbose_name_plural = "Группы"

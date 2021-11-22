@@ -51,6 +51,7 @@ api_custom = [
 
 # API DRF
 router = routers.DefaultRouter()
+router.register(f"api/{APIVER}/administration/users", administration_views_api.MMBPFUsersViewSet)
 
 urlpatterns = [
     # Main pages

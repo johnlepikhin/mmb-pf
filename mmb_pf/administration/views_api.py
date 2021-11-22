@@ -4,8 +4,80 @@ import re
 from django.contrib.auth import password_validation, update_session_auth_hash
 from django.contrib.auth.decorators import permission_required
 from django.http import JsonResponse
+from rest_framework import exceptions, mixins, viewsets
+from rest_framework.renderers import JSONRenderer
+
+from mmb_pf.common_services import get_constant_models
+from mmb_pf.drf_api import BaseModelPermissions, request_fields_parser
 
 from .models import MMBPFUsers
+from .serializers import MMBPFUserListSerializer, MMBPFUserSerializer
+
+constant_models = get_constant_models()
+###############################################################################
+# DRF views
+class MMBPFUsersViewSet(
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
+    """
+    API Endpoint for users, without create/delete actions
+    """
+
+    renderer_classes = [JSONRenderer]
+    queryset = MMBPFUsers.objects.filter(user_type=constant_models["USER_TYPE"]["names"]["Участник"]).order_by("id")
+    serializer_class = MMBPFUserSerializer  # used when PATCH (modify operations)
+
+    action_serializers = {
+        "retrieve": MMBPFUserSerializer,  # Get one elem
+        "list": MMBPFUserListSerializer,  # get all elems
+    }
+    permission_classes = [BaseModelPermissions]
+
+    def get_queryset(self):
+        queried_fields = {
+            "id": "int",
+            "is_active": "bool",
+            "is_superuser": "bool",
+            "first_name": "str_capitalize",
+            "last_name": "str_capitalize",
+            "patronymic": "str_capitalize",
+            "birth": "custom_date",
+            "phone": "str_contains_last10",
+            "tourist_club": "str",
+        }
+        query_params = request_fields_parser(request=self.request, fields=queried_fields)
+
+        # Hide superuser actions from non-superusers
+        if "is_superuser" not in query_params:
+            query_params["is_superuser"] = False
+        if self.action == "list":
+            if query_params:
+                queryset = self.queryset.filter(**query_params)
+            else:
+                queryset = self.queryset
+            if queryset.count() > 1000 and not query_params:
+                queryset = queryset.all()[:1000]
+        else:
+            queryset = self.queryset
+
+        return queryset
+
+    def get_serializer_class(self):
+        if hasattr(self, "action_serializers"):
+            if self.action in self.action_serializers:
+                return self.action_serializers[self.action]
+
+        return super(MMBPFUsersViewSet, self).get_serializer_class()
+
+    def permission_denied(self, request, message, code):
+        raise exceptions.PermissionDenied("У вас нет прав для выполнения данного запроса")
+
+
+###############################################################################
+# Custom views
 
 
 @permission_required("administration.change_my_password", raise_exception=True)
@@ -42,7 +114,7 @@ def change_my_password(request):
 
     try:
         user_obj = MMBPFUsers.objects.get(id=request.user.id)
-    except:
+    except Exception:
         return JsonResponse({"msg": "Ошибка запроса базы данных"}, status=422, safe=False)
 
     # check

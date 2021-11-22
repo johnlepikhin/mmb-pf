@@ -14,7 +14,7 @@ class MMBPFUsersForm(UserChangeForm):
             ].help_text = '<h3><a class="h3" href="../password/">Принудительная смена пароля пользователя </a></h3>'
 
     def clean(self):
-        if "groups" in self.cleaned_data and not len(self.cleaned_data.get("groups")):
+        if "groups" in self.cleaned_data and not self.cleaned_data.get("groups"):
             raise forms.ValidationError("Пользователь должен быть включён хотя бы в одну группу")
 
         return self.cleaned_data
@@ -26,7 +26,7 @@ class MMBPFUsersForm(UserChangeForm):
 
 class MMBPFUsersCreationForm(UserCreationForm):
     def clean(self):
-        if "groups" in self.cleaned_data and not len(self.cleaned_data.get("groups")):
+        if "groups" in self.cleaned_data and not self.cleaned_data.get("groups"):
             raise forms.ValidationError("Пользователь должен быть включён хотя бы в одну группу")
 
         return self.cleaned_data
