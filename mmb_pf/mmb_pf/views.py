@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import permission_required
 from django.http.response import JsonResponse
 from django.shortcuts import render
 
-# from essystem.drf_api import BaseModelPermissions
+# from mmb_pf.drf_api import BaseModelPermissions
 
 
 @permission_required("administration.view_main_page", raise_exception=True)

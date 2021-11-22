@@ -3,13 +3,14 @@ import shutil
 
 from django.http import JsonResponse
 
+import mmb_pf.mmb_pf_memcache as memcache
 from administration.models import MainMenu, SystemSettings
 from mmb_pf.settings import BASE_DIR
 
 
 # @permission_required('administration.view_main_menu', raise_exception=True)
-# @get_main_menu_cache
-def get_main_menu(request, ic="0"):
+@memcache.get_main_menu_cache
+def get_main_menu(request):
     """
     TAKE:
     RETURN:
@@ -35,7 +36,7 @@ def get_main_menu(request, ic="0"):
 
 
 # @permission_required('administration.view_main_menu', raise_exception=True)
-# @get_user_status_cache
+@memcache.get_user_status_cache
 def get_user_status(request):
     """
     TAKE:
@@ -55,7 +56,7 @@ def get_user_status(request):
 
 
 # @permission_required('administration.view_main_menu', raise_exception=True)
-# @get_system_status_cache
+@memcache.get_system_status_cache
 def get_system_status(request):
     """
     TAKE:

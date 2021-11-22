@@ -12,5 +12,8 @@ disable = [
     "missing-class-docstring",
     "missing-module-docstring",
     "missing-function-docstring",
-    "line-too-long"
+    "line-too-long",
+    "logging-fstring-interpolation", # Hate it, f-string really readable thing
+    "broad-except", # really hard to know what type of exception could be
+    "wrong-import-order", # black do it
 ]

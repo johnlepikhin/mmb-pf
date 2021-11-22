@@ -14,12 +14,12 @@
                             <i class="fas fa-bars fa-2x mt-2"></i>
                         </a>
                     </div>
-                    <div class="">
+                    <div v-if="user_status.is_staff" class="">
                         <a class="menu-btn btn-md rounded align-bottom w-100 mx-1" href="/admin">
                             <i class="fas fa-toolbox fa-2x mt-2"></i>
                         </a>
                     </div>
-                    <div class="">
+                    <div v-if="user_status.username" class="">
                         <a class="menu-btn btn-md rounded align-bottom w-100 mx-1" href="/administration/change_my_password">
                             <i class="fas fa-key fa-2x mt-2"></i>
                         </a>
