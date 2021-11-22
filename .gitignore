@@ -1,4 +1,7 @@
 # Django things
 settings_dev.py
+settings_prod.py
 settings.py
+
+# Python things
 __pycache__
