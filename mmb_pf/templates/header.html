@@ -20,7 +20,7 @@
                         </a>
                     </div>
                     <div v-if="user_status.username" class="">
-                        <a class="menu-btn btn-md rounded align-bottom w-100 mx-1" href="/administration/change_my_password">
+                        <a class="menu-btn btn-md rounded align-bottom w-100 mx-1" href="/administration/change_self_password">
                             <i class="fas fa-key fa-2x mt-2"></i>
                         </a>
                     </div>
@@ -30,7 +30,7 @@
                     <li class="nav-item">
                         <div class="dropdown">
                             <a class="btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
-                                <span class="">==* user_status.username *==</span>
+                                <span class=""><i class="fas fa-user-cog">&nbsp;</i>==* user_status.username *==</span>
                             </a>
                             <div class="dropdown-menu">
                                 <div v-if="user_status.username">

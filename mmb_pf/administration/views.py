@@ -2,10 +2,19 @@ from django.contrib.auth.decorators import permission_required
 from django.shortcuts import render
 
 
-@permission_required("administration.change_my_password", raise_exception=True)
-def change_my_password(request):
+@permission_required("administration.change_self_password", raise_exception=True)
+def change_self_password(request):
     return render(
         request,
-        "administration/change_my_password.html",
+        "administration/change_self_password.html",
+        {},
+    )
+
+
+@permission_required("administration.view_administration", raise_exception=True)
+def database_operations(request):
+    return render(
+        request,
+        "administration/database_operations.html",
         {},
     )

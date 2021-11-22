@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from ckeditor.widgets import CKEditorWidget
 from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin
@@ -7,13 +9,13 @@ from django.utils.html import mark_safe
 from jsoneditor.forms import JSONEditor
 
 from .forms import (
-    MMBPFUsersAdminPasswordChangeForm,
+    ImageStorageForm,
     MMBPFUsersCreationForm,
     MMBPFUsersForm,
     SystemSettingsCreationForm,
     SystemSettingsForm,
 )
-from .models import MainMenu, MMBPFGroups, MMBPFUsers, SystemSettings
+from .models import ImageStorage, MainMenu, MMBPFGroups, MMBPFUsers, SystemSettings
 
 
 class MainMenuAdmin(admin.ModelAdmin):
@@ -51,7 +53,6 @@ class MMBPFGroupsAdmin(admin.ModelAdmin):
 class MMBPFUsersAdmin(UserAdmin):
     add_form = MMBPFUsersCreationForm
     form = MMBPFUsersForm
-    change_password_form = MMBPFUsersAdminPasswordChangeForm
     model = MMBPFUsers
     list_display = [
         "id",
@@ -59,6 +60,7 @@ class MMBPFUsersAdmin(UserAdmin):
         "last_name",
         "first_name",
         "patronymic",
+        "user_type",
         "is_active",
     ]
     list_display_links = [
@@ -72,7 +74,10 @@ class MMBPFUsersAdmin(UserAdmin):
     ]
     list_per_page = 35
     # raw_id_fields = ("photos", "files")
-    ordering = ("id",)
+    ordering = (
+        "id",
+        "user_type",
+    )
 
     readonly_added = False
     formfield_overrides = {
@@ -84,6 +89,7 @@ class MMBPFUsersAdmin(UserAdmin):
             {
                 "classes": ("wide",),
                 "fields": (
+                    "user_type",
                     "first_name",
                     "last_name",
                     "username",
@@ -95,12 +101,12 @@ class MMBPFUsersAdmin(UserAdmin):
             },
         ),
     )
-    fieldsets = (
+    fieldsets: Tuple = (
         (
             "Общее",
             {
                 "fields": [
-                    # ("user_type",),
+                    ("user_type",),
                     (
                         "is_active",
                         "is_staff",
@@ -119,7 +125,7 @@ class MMBPFUsersAdmin(UserAdmin):
                         "gender",
                         "birth",
                     ),
-                    "fact_address",
+                    "tourist_club",
                 )
             },
         ),
@@ -150,48 +156,6 @@ class MMBPFUsersAdmin(UserAdmin):
         ("Информация о активности", {"fields": ("last_login",)}),
     )
 
-    def get_fieldsets(self, request, obj=None):
-        if not obj:
-            return self.add_fieldsets
-
-        # if request.user.is_superuser:
-        #     if "is_superuser" not in self.fieldsets[0][1]["fields"]:
-        #         self.fieldsets[0][1]["fields"].append("is_superuser")
-        # else:
-        #     if "is_superuser" in self.fieldsets[0][1]["fields"]:
-        #         self.fieldsets[0][1]["fields"].remove("is_superuser")
-
-        return self.fieldsets
-
-    def get_queryset(self, request):
-        """
-        hide superusers from not superusers
-        """
-        qs = super(UserAdmin, self).get_queryset(request)
-        # if not request.user.is_superuser:
-        #     qs = qs.filter(is_superuser=False)
-        #     is_admin = False
-        #     for group_obj in request.user.groups.all():
-        #         if group_obj.name == "Администраторы":
-        #             is_admin = True
-        #     if not is_admin:
-        #         qs = qs.filter(user_type=constant_models["USER_TYPE"]["names"]["PERSONNEL"])
-        return qs
-
-    def get_form(self, request, obj=None, **kwargs):
-        """
-        Change fileds of user admin
-        """
-        defaults = {}
-        if obj is None:
-            defaults["form"] = self.add_form
-        defaults.update(kwargs)
-
-        return super().get_form(request, obj, **defaults)
-
-    def save_model(self, request, obj, form, change):
-        super(MMBPFUsersAdmin, self).save_model(request, obj, form, change)
-
 
 class SystemSettingsAdmin(admin.ModelAdmin):
     add_form = SystemSettingsCreationForm
@@ -216,7 +180,7 @@ class SystemSettingsAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.JSONField: {"widget": JSONEditor},
     }
-    fieldsets = (  # typing: ignore
+    fieldsets: Tuple = (
         (
             "Общие",
             {
@@ -238,15 +202,15 @@ class SystemSettingsAdmin(admin.ModelAdmin):
     )
     change_list_template = "admin/administration/systemsettings_list.html"
 
-    def get_queryset(self, request):
-        """
-        hide critical options from non superusers
-        """
-        hidden = ["personnel_default_group_id"]
-        qs = super(SystemSettingsAdmin, self).get_queryset(request)
-        if not request.user.is_superuser:
-            qs = qs.exclude(name__in=hidden)
-        return qs
+    # def get_queryset(self, request):
+    #     """
+    #     hide critical options from non superusers
+    #     """
+    #     hidden = ["personnel_default_group_id"]
+    #     qs = super(SystemSettingsAdmin, self).get_queryset(request)
+    #     if not request.user.is_superuser:
+    #         qs = qs.exclude(name__in=hidden)
+    #     return qs
 
     def get_fieldsets(self, request, obj=None):
         if request.user.is_superuser:
@@ -267,7 +231,7 @@ class SystemSettingsAdmin(admin.ModelAdmin):
 
         return self.fieldsets
 
-    def get_form(self, request, obj=None, **kwargs):
+    def get_form(self, request, obj=None, change=False, **kwargs):
         """
         Change fileds
         """
@@ -294,9 +258,90 @@ class SystemSettingsAdmin(admin.ModelAdmin):
             super(SystemSettingsAdmin, self).save_model(request, obj, form, change)
 
 
+class ImageStorageAdmin(admin.ModelAdmin):
+    form = ImageStorageForm
+    model = ImageStorage
+    list_display = [
+        "id",
+        "img_preview",
+        "file",
+        "app_name",
+        "desc",
+    ]
+    list_display_links = [
+        "id",
+        "img_preview",
+    ]
+    search_fields = ["id", "file", "app_name", "desc"]
+    list_per_page = 35
+    ordering = ("app_name",)
+    readonly_fields = [
+        "img_preview",
+    ]
+    fieldsets = (
+        (
+            "Общие",
+            {
+                "fields": (
+                    ("file", "app_name"),
+                    ("desc",),
+                )
+            },
+        ),
+        (
+            "Предпросмотр",
+            {
+                "fields": ("img_preview",),
+            },
+        ),
+    )
+    actions = ["really_delete_selected"]
+    change_list_template = "admin/administration/imagestorage_list.html"
+
+    def get_actions(self, request):
+        actions = super(ImageStorageAdmin, self).get_actions(request)
+        if "delete_selected" in actions:
+            del actions["delete_selected"]
+        return actions
+
+    def really_delete_selected(self, request, queryset):
+        for obj in queryset:
+            obj.delete()
+        self.message_user(request, f"Файлов удалено: {queryset.count()} ")
+
+    really_delete_selected.short_description = "Удалить выбранные изображения"  # type: ignore
+
+    def img_preview(self, obj):
+        return mark_safe(f'<img src="{obj.file.url}" width="200" />')
+
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        """
+        Change fileds
+        """
+        defaults = {}
+        defaults.update(kwargs)
+
+        if request.user.is_superuser:
+            self.readonly_fields = [
+                "img_preview",
+            ]
+        else:
+            self.readonly_fields = ["img_preview", "app_name"]
+
+        return super().get_form(request, obj, **defaults)
+
+    def save_model(self, request, obj, form, change):
+        if not request.user.is_superuser:
+            obj.app_name = "upload_from_admin"
+
+        super(ImageStorageAdmin, self).save_model(request, obj, form, change)
+
+
+admin.site.unregister(Group)
 admin.site.register(MMBPFUsers, MMBPFUsersAdmin)
 admin.site.register(MMBPFGroups, MMBPFGroupsAdmin)
 admin.site.register(Permission)
 admin.site.register(ContentType)
 admin.site.register(MainMenu, MainMenuAdmin)
 admin.site.register(SystemSettings, SystemSettingsAdmin)
+admin.site.register(ImageStorage, ImageStorageAdmin)

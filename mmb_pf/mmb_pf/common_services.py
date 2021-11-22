@@ -15,28 +15,40 @@ def get_timezone(zone_type=None):
 
 def get_constant_models():
     # genders
-    MALE = 1
-    FEMALE = 2
+    male_id = 1
+    female_id = 2
 
     # user types
-    ADMINISTRATION = 1  # this is INTERNAL people, they could use whole system
-    USERS = 2  # this is EXTERNAL people, they can get access to personnel private cabinet only
+    administration_id = 1  # user accounts for administration_id
+    participant_id = 2  # user accounts of participant_ids - they are could be removed
 
     constants = {
         "GENDER": {
             "keys": {  # used in the serializers for representation
-                MALE: "Мужской",
-                FEMALE: "Женский",
+                male_id: "Мужской",
+                female_id: "Женский",
             },
             "names": {  # used in serializers and model requests
-                "Мужской": MALE,
-                "Женский": FEMALE,
+                "Мужской": male_id,
+                "Женский": female_id,
             },
             "choices": (
-                (MALE, "Мужской"),
-                (FEMALE, "Женский"),
+                (male_id, "Мужской"),
+                (female_id, "Женский"),
             ),
-            "default": MALE,
+            "default": male_id,
+        },
+        "USER_TYPE": {
+            "names": {
+                "Организатор": administration_id,
+                "Участник": participant_id,
+            },
+            "choices": (
+                (administration_id, "Организатор"),
+                (participant_id, "Участник"),
+            ),
+            # ! IMPORTANT ! With this value new users created
+            "default": participant_id,
         },
     }
 

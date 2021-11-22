@@ -1,17 +1,8 @@
-from ckeditor.widgets import CKEditorWidget
+# from ckeditor.widgets import CKEditorWidget
 from django import forms
-from django.contrib.auth.forms import (
-    AdminPasswordChangeForm,
-    UserChangeForm,
-    UserCreationForm,
-)
+from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 
-from .models import MainMenu, MMBPFGroups, MMBPFUsers, SystemSettings
-
-
-class MMBPFUsersAdminPasswordChangeForm(AdminPasswordChangeForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+from .models import ImageStorage, MMBPFUsers, SystemSettings
 
 
 class MMBPFUsersForm(UserChangeForm):
@@ -34,9 +25,6 @@ class MMBPFUsersForm(UserChangeForm):
 
 
 class MMBPFUsersCreationForm(UserCreationForm):
-    def __init__(self, *args, **kwargs):
-        super(MMBPFUsersCreationForm, self).__init__(*args, **kwargs)
-
     def clean(self):
         if "groups" in self.cleaned_data and not len(self.cleaned_data.get("groups")):
             raise forms.ValidationError("Пользователь должен быть включён хотя бы в одну группу")
@@ -60,4 +48,16 @@ class SystemSettingsForm(forms.ModelForm):
 
     class Meta:
         model = SystemSettings
+        fields = "__all__"
+
+
+class ImageStorageForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(ImageStorageForm, self).__init__(*args, **kwargs)
+        # override default
+        if "app_name" in self.fields:
+            self.fields["app_name"].initial = "upload_from_admin"
+
+    class Meta:
+        model = ImageStorage
         fields = "__all__"

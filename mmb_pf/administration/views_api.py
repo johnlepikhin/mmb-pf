@@ -19,7 +19,7 @@ def change_my_password(request):
 
     try:
         request_body = json.loads(request.body)
-    except:
+    except Exception:
         return JsonResponse({"msg": "Некорректное тело запроса, только JSON"}, status=422, safe=False)
     if not request_body:
         return JsonResponse({"msg": "Запрос без параметров для изменения"}, status=422, safe=False)
@@ -49,8 +49,8 @@ def change_my_password(request):
     if user_obj.check_password(request_body["old_password"]):
         try:
             password_validation.validate_password(password=request_body["new_password"], user=user_obj)
-        except Exception as e:
-            err_str = " ".join(e)
+        except Exception as exc:
+            err_str = " ".join(exc)
             return JsonResponse({"msg": f"{err_str}"}, status=422, safe=False)
 
         user_obj.set_password(request_body["new_password"])

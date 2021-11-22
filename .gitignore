@@ -2,6 +2,7 @@
 settings_dev.py
 settings_prod.py
 settings.py
+media/*
 
 # Python things
 __pycache__

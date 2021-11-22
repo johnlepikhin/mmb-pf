@@ -1,6 +1,6 @@
 // Hello friend, nice that you are here and hope with good intentions.
 // This whole system (frontend, backend) is invented, written and tested by me - fzeulf =)
-// It was a hard work during 2020 year, hope there is not so many bugs and this system will be usefull.
+// It was a hard work during 2021 year, hope there is not so many bugs and this system will be usefull.
 /******************************************************************************
                                 TOOLS
 ******************************************************************************/
@@ -236,79 +236,6 @@ function transliterate(args) {
     }
 }
 
-/*
-    Developer function for filling initial form of random data
-    fill_form()
-    fill_form({'full': true})
-*/
-function fill_form(args = {}) {
-    const database = {
-        'names': {
-            1: { // male
-                'lnames': ['Куропаткин', 'Хмырь', 'Шниперсон', 'Сакермахрепяков', 'Трындотов', 'Масабаков', 'Курочкин', 'Кривозадов', 'Машковац', 'Кац', 'Шнакропос-Пердыщенский', 'Сковорода'],
-                'fnames': ['Барбос', 'Кот', 'Арнольд', 'Мышан', 'Абдул', 'Абдурахман', 'Махмуд', 'Шкипер', 'Блямс', 'Дрын', 'Кощей', 'Тышыпык', 'Иван'],
-                'pnames': ['Иструпович', 'Антилопович', 'Козлятович', 'Сахарович', 'Израилевич', 'Власипоиевич', 'Ахмед-критопопович', 'Шпакович', 'Астрахопович', 'Малятоватич', 'Шриланкович', 'Вашингтонович', 'Амирханович'],
-            },
-            2: { // female
-                'lnames': ['Козлятова', 'Сакермахрепякова', 'Лыткарина', 'Марябакова', 'Алавердыева', 'Имярекова', 'Барбос-куропаткина', 'Аннигиляторова', 'Селёдкина', 'Сковорода'],
-                'fnames': ['Машина', 'Баранина', 'Кошка', 'Василиса', 'Машка-облигация', 'Ильбумбира', 'Масяня', 'Куляпа', 'Малапуса', 'Мурка', 'Кулёма', 'Клямка'],
-                'pnames': ['Кривозадовна', 'Переславль-залесская', 'Чертыховская', 'Антрактовна', 'Бруевична', 'Ильинична', 'Кузьминична', 'Машинична', 'Бруснична', 'Куль-кирпична', 'Бизнесововична', 'Ашмантовна'],
-            }
-        },
-        'phone': ["8", "+7"],
-        'emails': {
-            'tails': ['mail.ru', 'shmail.com', 'nomail.org', 'imasite.com', 'whitehouse.gov.us', 'kremlin.ru', 'durka.com'],
-        },
-        'cities': ['Шамсква', 'Балабаново', 'Куропатово', 'Шмылигин', 'Ата-алма', 'Атата-аламама', 'Пункт-Саперпрумптук', 'Кутепкино', 'Панкт-Сапрембпург', 'Василисобрумг', 'Антамалабалья', 'Казямаково', 'Шпычкино', 'Мастра', 'Камсва', 'Васкма', 'Осторбцы'],
-        'streets': ['проспект Улицова', 'Прямая', 'Стрела', 'Вашингтонская', 'Сверхтонская', 'Дыр-дурищева', 'Девнульская', 'Нульпоинтерэксепшеновская', 'Восемьдесят-восьмого интернационала', 'Аркашкина', 'Проектируемый проезд 92', 'Аднаковская', 'Бездомная'],
-        'jobs': ['Скотобаза №2', 'МПБУ Мугуу имени Муму', 'Пентагон', 'Кремль', '6 Башня кремля', 'Овощебаза №11', 'Безработный', 'Генеральный директор центрального разведовательного управления', 'Заместитель подместителя по мат капиталу', 'Волк-одиночка', 'Бригадир'],
-        'clubs': ['Газмяс', 'Безногие', 'Безмячные', 'Слепаки', 'Одноногие', 'Хоккеисты', 'Сборная по шкурмаболу', 'Спартак'],
-        'police_deps': ['ОУМОУ по Курбан-баши', 'ФМС имени МЧС по МВД', 'Городской управой МВД', 'ДМБ по ОУФМС', 'ННИИ АМВД по Кузимашенской области', 'ЦРУ МВД США', 'АНБ'],
-    };
-    if (typeof initial_form != "undefined" || args.full) {
-        let obj;
-        if (args.full) {
-            obj = initial_form_full;
-        } else {
-            obj = initial_form;
-        }
-        let gender = Math.round(Math.random() * 1 + 1);
-        obj.new_candidate.agree_with_pers_data_processing = true;
-        obj.new_candidate.first_name = get_rand_from_array(database.names[gender].fnames);
-        obj.new_candidate.last_name = get_rand_from_array(database.names[gender].lnames);
-        obj.new_candidate.patronymic = get_rand_from_array(database.names[gender].pnames);
-        obj.new_candidate.gender = gender;
-        obj.new_candidate.phone = get_rand_from_array(database.phone) + Math.floor(Math.random() * 10000000000);
-        obj.new_candidate.email = transliterate({ 'string': obj.new_candidate.last_name, 'lower': true }) + "@" + get_rand_from_array(database.emails.tails);
-        obj.new_candidate.vkid = 'id' + Math.floor(Math.random() * 10000000);
-        obj.new_candidate.birth = ("0" + (Math.floor(Math.random() * 28) + 1)).slice(-2) + '.' + ("0" + (Math.floor(Math.random() * 12) + 1)).slice(-2) + '.' + (Math.floor(Math.random() * 45) + 1960);
-        obj.new_candidate.fact_post_index = ("00000" + (Math.floor(Math.random() * 1000000))).slice(-6);
-        obj.new_candidate.fact_city = get_rand_from_array(database.cities);
-        obj.new_candidate.fact_street = get_rand_from_array(database.streets);
-        obj.new_candidate.fact_building = Math.floor(Math.random() * 100);
-        obj.new_candidate.fact_building_num = Math.random() > 0.5 ? Math.floor(Math.random() * 10) : '';
-        obj.new_candidate.fact_apart_num = Math.floor(Math.random() * 1000);
-        obj.new_candidate.workplace = get_rand_from_array(database.jobs);
-        obj.new_candidate.footballclub = get_rand_from_array(database.clubs);
-        obj.new_candidate.source_of_info = Math.floor(Math.random() * 9 + 1);
-        if (args.full) {
-            obj.new_candidate.fact_address = ("00000" + (Math.floor(Math.random() * 1000000))).slice(-6) + ', г. ' + get_rand_from_array(database.cities) + ', ул. ' + get_rand_from_array(database.streets) + ', д. ' + Math.floor(Math.random() * 100) + ', кв. ' + Math.floor(Math.random() * 1000);
-        }
-    }
-    if (typeof initial_form_full != "undefined") {
-        initial_form_full.new_candidate.passport_num_head = ("000" + (Math.floor(Math.random() * 10000))).slice(-4);
-        initial_form_full.new_candidate.passport_num_tail = ("00000" + (Math.floor(Math.random() * 1000000))).slice(-6);
-        initial_form_full.new_candidate.passport_deps_num = ("00" + (Math.floor(Math.random() * 10000))).slice(-3) + '-' + ("00" + (Math.floor(Math.random() * 10000))).slice(-3);
-        initial_form_full.new_candidate.passport_issue = ("0" + (Math.floor(Math.random() * 28) + 1)).slice(-2) + '.' + ("0" + (Math.floor(Math.random() * 12) + 1)).slice(-2) + '.' + (Math.floor(Math.random() * 20) + 1995);
-        initial_form_full.new_candidate.passport_deps_name = get_rand_from_array(database.police_deps);
-        initial_form_full.new_candidate.birth_place = 'город ' + get_rand_from_array(database.cities);
-        initial_form_full.new_candidate.reg_address = 'г. ' + get_rand_from_array(database.cities) + ', ул. ' + get_rand_from_array(database.streets) + ', д. ' + Math.floor(Math.random() * 100) + ', кв. ' + Math.floor(Math.random() * 1000);
-        initial_form_full.new_candidate.knowledge_of_english = Math.random() > 0.5 ? true : false;
-        initial_form_full.new_candidate.has_suit = Math.random() > 0.5 ? true : false;
-        initial_form_full.new_candidate.outerwear_size = Math.floor(Math.random() * 6);
-        initial_form_full.new_candidate.height = (Math.floor(Math.random() * 45) + 155);
-    }
-};
 function get_rand_from_array(array) {
     return array[Math.floor(Math.random() * array.length)];
 }

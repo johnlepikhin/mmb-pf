@@ -29,7 +29,7 @@ def get_system_status_cache(func):
             cache.set(
                 cache_name,
                 cache_data,
-                SystemSettings.objects.get_option(name="main_menu_cache_refresh_time", default=3600),
+                SystemSettings.objects.get_option(name="main_menu_cache_ttl", default=3600),
             )
 
         return cache_data
@@ -57,7 +57,6 @@ def get_main_menu_cache(func):
             pass
 
         cache_name = f"main_menu_cache_{group_id}"
-
         cache_data = cache.get(cache_name)
         if not cache_data:
             cache_data = func(self, **kwargs)

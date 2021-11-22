@@ -1,7 +1,20 @@
+import datetime
+import logging
+import mimetypes
+import os
+import random
+import time
+
+import magic
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser, Group
+from django.core.files.storage import FileSystemStorage
 from django.db import models
 
 from mmb_pf.common_services import get_constant_models
+
+# This is shared storage - it CAN BE ACCESSED by nginx without authorization. So files should have unpredictable names
+image_storage_shared = FileSystemStorage(location=f"{settings.BASE_DIR}/media")
 
 constant_models = get_constant_models()
 
@@ -10,6 +23,12 @@ class MMBPFUsers(AbstractUser):
     """
     This is users of the MMB PF system
     """
+
+    user_type = models.PositiveSmallIntegerField(
+        choices=constant_models["USER_TYPE"]["choices"],
+        default=constant_models["USER_TYPE"]["default"],
+        help_text="Тип пользователя",
+    )
 
     modification_date = models.DateTimeField(
         auto_now=True,
@@ -62,12 +81,12 @@ class MMBPFUsers(AbstractUser):
         null=True,
         help_text="Дата рождения",
     )
-    fact_address = models.CharField(
+    tourist_club = models.CharField(
         default="",
         unique=False,
         blank=True,
         max_length=1024,
-        help_text="Фактический адрес",
+        help_text="Название туристического клуба если есть",
     )
 
     # photos = models.ManyToManyField(ImageStorage, blank=True, related_name="user_images")
@@ -81,7 +100,7 @@ class MMBPFUsers(AbstractUser):
     )
 
     def __str__(self):
-        return self.username
+        return str(self.username)
 
     class Meta:
         verbose_name_plural = "Пользователи"
@@ -106,21 +125,20 @@ class SystemSettingsMananger(models.Manager):
             name=option_name,
             default=123, # [Optional], desired value if no such option created
         """
-        if not "name" in kwargs:
-            raise ValueError(f"Имя настройки не передано")
+        if "name" not in kwargs:
+            raise ValueError("Имя настройки не передано")
 
         option_val = ""
         option_obj = None
         try:
             option_obj = self.get(name=kwargs["name"])
-        except:
-            if not "default" in kwargs:
-                raise ValueError(
+        except Exception:
+            if "default" not in kwargs:
+                raise ValueError(  # pylint: disable = raise-missing-from
                     f"Настройки с именем '{kwargs['name']}' не существует, и не передано значение по умолчанию"
                 )
             else:
                 option_val = kwargs["default"]
-
         if option_obj:
             system_settings = SystemSettings()
             type_names = system_settings.OPTION_TYPES["names"]
@@ -134,16 +152,18 @@ class SystemSettingsMananger(models.Manager):
             name=option_name,
             value=123, # option value
         """
-        if not "name" in kwargs:
-            raise ValueError(f"Имя настройки не передано")
-        if not "value" in kwargs:
-            raise ValueError(f"Значение настройки не передано")
+        if "name" not in kwargs:
+            raise ValueError("Имя настройки не передано")
+        if "value" not in kwargs:
+            raise ValueError("Значение настройки не передано")
 
         option_obj = None
         try:
             option_obj = self.get(name=kwargs["name"])
-        except:
-            raise ValueError(f"Настройки с именем '{kwargs['name']}' не существует")
+        except Exception:
+            raise ValueError(  # pylint: disable = raise-missing-from
+                f"Настройки с именем '{kwargs['name']}' не существует"
+            )
 
         if option_obj:
             system_settings = SystemSettings()
@@ -241,7 +261,7 @@ class SystemSettings(models.Model):
     objects = SystemSettingsMananger()
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
     class Meta:
         verbose_name_plural = "Настройки системы"
@@ -305,7 +325,64 @@ class MainMenu(models.Model):
     )
 
     def __str__(self):
-        return self.tid
+        return str(self.tid)
 
     class Meta:
         verbose_name_plural = "Главное меню"
+
+
+def image_path(instance, filename):
+    unix_time = int(time.time())
+    now_date = datetime.datetime.now()
+    current_up_dir = f"{now_date.year}-{now_date.month:02d}"
+
+    _, file_extension = os.path.splitext(filename)
+    if not file_extension:
+        image_data = bytes(instance.file.read())
+        detected_type = magic.from_buffer(image_data, mime=True)
+        if detected_type:
+            file_extension = mimetypes.guess_extension(detected_type)
+    if not file_extension or file_extension == ".jpe":
+        file_extension = ".jpg"
+    chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890"
+    randomstr = "".join((random.choice(chars)) for x in range(10))
+    return f"upload/{current_up_dir}/img_{randomstr}_{unix_time}{file_extension}"
+
+
+class ImageStorage(models.Model):
+
+    file = models.ImageField(storage=image_storage_shared, upload_to=image_path)
+    app_name = models.CharField(
+        max_length=128,
+        blank=False,
+        help_text="Идентификатор приложения, которое загрузило файл",
+    )
+    desc = models.CharField(
+        default="",
+        max_length=2048,
+        blank=True,
+        help_text="Описание",
+    )
+
+    def delete(self, *args, **kwargs):
+        if os.path.isfile(self.file.path):
+            try:
+                os.remove(self.file.path)
+            except Exception:
+                logging.error(f"Can't remove file: '{self.file.path}'")
+
+        super(ImageStorage, self).delete(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        if hasattr(self, "id"):
+            try:
+                this = ImageStorage.objects.get(id=self.id)
+                if this.file != self.file:
+                    this.file.delete()
+            except Exception:
+                logging.error(f"Can't remove file: '{self.file.path}'")
+
+        super(ImageStorage, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name_plural = "Хранилище изображений"

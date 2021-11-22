@@ -11,13 +11,13 @@
     <div class="container d-flex align-items-center">
         <div class="form-outer text-center d-flex align-items-center">
             <div class="form-inner">
-                <h1 class="display-10"><i class="fas fa-map-marked-alt"></i> ММБ ПФ</h1>
-                <p>Московский Мракобесный Батальон Полуфинал</p>
+                <h1 class="display-10"><i class="fas fa-map-marked-alt"></i> ММБ</h1>
+                <p>Московский Марш Бросок</p>
                 <p>Система помощи участникам</p>
                 <form method="post" class="text-left form-validate" action="{% url 'login' %}">
                     {% if next != "/" %}
                         {% if user.is_authenticated %}
-                        <p class="text-danger">Недостаточно прав для открытия этой страницы.</p>
+                        <p class="text-warning">Вы уже авторизованы как {{user.username}}</p>
                         {% endif %}
                     {% endif %}
                     <div class="form-group-material">

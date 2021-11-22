@@ -6,8 +6,8 @@ from django.shortcuts import render
 
 # from mmb_pf.drf_api import BaseModelPermissions
 
-
-@permission_required("administration.view_main_page", raise_exception=True)
+# Main page could be view by anonimous
+# @permission_required("administration.view_main_page", raise_exception=True)
 def index(request):
     return render(
         request,
@@ -25,7 +25,7 @@ def worklog(request):
     )
 
 
-def error_403(request, exception):
+def error_403(request, exception):  # pylint: disable = unused-argument
     if re.match(r"^\/api\/v", request.path):
         return JsonResponse({"msg": "У вас нет прав для выполнения данного запроса"}, status=403, safe=False)
     else:
@@ -37,7 +37,7 @@ def error_403(request, exception):
         )
 
 
-def error_404(request, exception):
+def error_404(request, exception):  # pylint: disable = unused-argument
     if re.match(r"^\/api\/v", request.path):
         return JsonResponse({"msg": "Данные не найдены"}, status=404, safe=False)
     else:
