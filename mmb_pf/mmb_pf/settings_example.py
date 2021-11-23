@@ -15,7 +15,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-MMB_PF_VERSION = "0.0.1"
+MMB_PF_VERSION = "0.2.0"
 logger = logging.getLogger(__name__)
 logger.critical(
     f"{'#'*80}\n# MMB PF v{MMB_PF_VERSION} started: {datetime.now().strftime('%d.%m.%Y %H:%M')}\n{'#'*80}\n"
@@ -23,7 +23,6 @@ logger.critical(
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -52,6 +51,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "administration.apps.AdministrationConfig",
     "ckeditor",
+    "addrbook",
 ]
 
 MIDDLEWARE = [

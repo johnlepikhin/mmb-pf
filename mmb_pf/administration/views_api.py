@@ -40,7 +40,6 @@ class MMBPFUsersViewSet(
         queried_fields = {
             "id": "int",
             "is_active": "bool",
-            "is_superuser": "bool",
             "first_name": "str_capitalize",
             "last_name": "str_capitalize",
             "patronymic": "str_capitalize",
@@ -50,9 +49,6 @@ class MMBPFUsersViewSet(
         }
         query_params = request_fields_parser(request=self.request, fields=queried_fields)
 
-        # Hide superuser actions from non-superusers
-        if "is_superuser" not in query_params:
-            query_params["is_superuser"] = False
         if self.action == "list":
             if query_params:
                 queryset = self.queryset.filter(**query_params)
