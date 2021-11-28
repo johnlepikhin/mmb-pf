@@ -14,8 +14,18 @@ class MMBPFUsersForm(UserChangeForm):
             ].help_text = '<h3><a class="h3" href="../password/">Принудительная смена пароля пользователя </a></h3>'
 
     def clean(self):
+        """Here located before save custom validations"""
         if "groups" in self.cleaned_data and not self.cleaned_data.get("groups"):
             raise forms.ValidationError("Пользователь должен быть включён хотя бы в одну группу")
+
+        if "street" in self.cleaned_data and self.cleaned_data["street"]:
+            if "sign" not in self.cleaned_data or not self.cleaned_data["sign"]:
+                raise forms.ValidationError("Уличный указатель не выбран")
+
+            if self.cleaned_data["sign"] not in self.cleaned_data["street"].signes.all():
+                raise forms.ValidationError(
+                    f"Указатель '{self.cleaned_data['sign'].name}' не принадлежит улице '{self.cleaned_data['street'].name}'"
+                )
 
         return self.cleaned_data
 

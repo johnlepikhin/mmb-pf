@@ -8,6 +8,8 @@ from django.db import models
 from django.utils.html import mark_safe
 from jsoneditor.forms import JSONEditor
 
+from addrbook.models import Streets
+
 from .forms import (
     ImageStorageForm,
     MMBPFUsersCreationForm,
@@ -90,11 +92,13 @@ class MMBPFUsersAdmin(UserAdmin):
                 "classes": ("wide",),
                 "fields": (
                     "user_type",
-                    "first_name",
-                    "last_name",
+                    (
+                        "last_name",
+                        "first_name",
+                    ),
                     "username",
-                    "password1",
-                    "password2",
+                    ("password1", "password2"),
+                    "team",
                     "tourist_club",
                     "groups",
                 ),
@@ -126,6 +130,7 @@ class MMBPFUsersAdmin(UserAdmin):
                         "birth",
                     ),
                     "tourist_club",
+                    "team",
                 )
             },
         ),
@@ -133,6 +138,7 @@ class MMBPFUsersAdmin(UserAdmin):
             "Контакты",
             {
                 "fields": (
+                    ("street", "sign", "custom_sign"),
                     (
                         "phone",
                         "email",

@@ -2,7 +2,25 @@ from typing import Tuple
 
 from django.contrib import admin
 
-from .models import Streets, StreetSignes, Teams
+from .models import CustomSignes, Streets, StreetSignes, Teams
+
+
+class CustomSignesAdmin(admin.ModelAdmin):
+    list_display = [
+        "id",
+        "name",
+    ]
+    list_display_links = [
+        "name",
+    ]
+    search_fields = [
+        "id",
+        "name",
+    ]
+    list_per_page = 35
+    ordering = ("name",)
+
+    model = CustomSignes
 
 
 class StreetSignesAdmin(admin.ModelAdmin):
@@ -89,5 +107,6 @@ class TeamsAdmin(admin.ModelAdmin):
 
 
 admin.site.register(StreetSignes, StreetSignesAdmin)
+admin.site.register(CustomSignes, CustomSignesAdmin)
 admin.site.register(Streets, StreetsAdmin)
 admin.site.register(Teams, TeamsAdmin)

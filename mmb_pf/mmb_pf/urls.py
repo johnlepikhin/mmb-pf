@@ -24,6 +24,7 @@ from django.urls import include, path, re_path
 from django.views.generic.base import RedirectView
 from rest_framework import routers
 
+from addrbook.views import addrbook_list
 from administration import views_api as administration_views_api
 
 from . import views as mmb_pf_views
@@ -56,7 +57,8 @@ router.register(f"api/{APIVER}/administration/users", administration_views_api.M
 urlpatterns = [
     # Main pages
     re_path(r"^favicon\.ico", favicon_view),
-    re_path(r"^$", mmb_pf_views.index, name="index"),
+    # re_path(r"^$", mmb_pf_views.index, name="index"),
+    re_path(r"^$", addrbook_list, name="index_as_addrbook_list"),
     re_path(r"^worklog/$", mmb_pf_views.worklog, name="worklog"),
     # API
     path("", include(router.urls)),
@@ -68,6 +70,8 @@ urlpatterns = [
     # APPS
     # Administration
     re_path(r"^administration/", include("administration.urls")),
+    # Addrbook
+    re_path(r"^addrbook/", include("addrbook.urls")),
 ]
 
 # err pages

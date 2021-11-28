@@ -3,6 +3,7 @@ import re
 
 from django.contrib.auth import password_validation, update_session_auth_hash
 from django.contrib.auth.decorators import permission_required
+from django.db.models import QuerySet
 from django.http import JsonResponse
 from rest_framework import exceptions, mixins, viewsets
 from rest_framework.renderers import JSONRenderer
@@ -27,14 +28,16 @@ class MMBPFUsersViewSet(
     """
 
     renderer_classes = [JSONRenderer]
-    queryset = MMBPFUsers.objects.filter(user_type=constant_models["USER_TYPE"]["names"]["Участник"]).order_by("id")
+    # queryset = QuerySet(model=MMBPFUsers, query=user_type=constant_models["USER_TYPE"]["names"]["Участник"]).order_by("team"))
+    queryset = MMBPFUsers.objects.filter(user_type=constant_models["USER_TYPE"]["names"]["Участник"]).order_by("team")
     serializer_class = MMBPFUserSerializer  # used when PATCH (modify operations)
 
     action_serializers = {
         "retrieve": MMBPFUserSerializer,  # Get one elem
         "list": MMBPFUserListSerializer,  # get all elems
     }
-    permission_classes = [BaseModelPermissions]
+    # it opened for everyone
+    # permission_classes = [BaseModelPermissions]
 
     def get_queryset(self):
         queried_fields = {
@@ -54,12 +57,15 @@ class MMBPFUsersViewSet(
                 queryset = self.queryset.filter(**query_params)
             else:
                 queryset = self.queryset
-            if queryset.count() > 1000 and not query_params:
-                queryset = queryset.all()[:1000]
+
+            # TODO: probably add backend query compose to the frontend
+            # if queryset.count() > 1000 and not query_params:
+            #     queryset = queryset.all()[:1000]
         else:
             queryset = self.queryset
 
-        return queryset
+        # this slice needed for droppting django queryset cache
+        return queryset[: queryset.count()]
 
     def get_serializer_class(self):
         if hasattr(self, "action_serializers"):
@@ -74,8 +80,6 @@ class MMBPFUsersViewSet(
 
 ###############################################################################
 # Custom views
-
-
 @permission_required("administration.change_my_password", raise_exception=True)
 def change_my_password(request):
     """

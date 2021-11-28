@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}
+| Информация от организаторов
+{% endblock %}
+
+{% block main_menu %}
+    {% include "main_menu.html" %}
+{% endblock %}
+
+{% block body %}
+<div class="page">
+    {% include "header.html" %}
+    <div id="addrbook_info" class="mt-1 p-2">
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-1">
+                    <div class="card-header white d-flex justify-content-between align-items-center py-3">
+                        <div class="col-12 p-0">
+                            <p class="h5-responsive font-weight-bold mb-0 mx-auto app-header">Информация от организаторов</p>
+                        </div>
+                    </div>
+                    <div v-if="! appLoading" class="card-body py-1">
+                        <!-- <div class="row">
+                            <div class="col-sm-12 mx-0">
+                                <span class="text-xsmall text-gray mx-0">
+                                    <i class="fas fa-info-circle"></i> Информация обновляется не чаще чем раз в -*main_status.cfg.refresh_time*- сек.
+                                </span>
+                            </div>
+                        </div> -->
+                    </div>
+                </div>
+                <div v-if="appLoading" class="text-center py-5">
+                    <div class="logo-wrapper spinner-grow text-info" role="status" style="width: 3rem; height: 3rem;">
+                    </div>
+                </div>
+                <div v-else-if="err_msg" class="pt-2 px-2">
+                    <div class="alert alert-danger">
+                        <b>Ошибка!</b> -* err_msg *-
+                    </div>
+                </div>
+                <div v-else-if="info_msg" class="pt-2 px-2">
+                    <div class="alert alert-info">
+                        <b>Информация!</b> -* info_msg *-
+                    </div>
+                </div>
+                <div v-else>
+                    <div class="card mb-1 mt-1">
+                        <div class="card-header white">
+                            <div class="row d-flex justify-content-start my-auto">
+                                <div class="col-12">
+                                    <span class="my-auto text-gray text-bold">Общая информация</span>
+                                    <!-- <p class="text-xsmall text-gray m-0">
+                                        <i class="fas fa-info-circle"></i> Если количество отправленных писем за сутки достигнет максимума, система перестанет посылать сообщения
+                                    </p> -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body py-1">
+                            <div class="row">
+                                <div class="col-12 my-auto">
+                                    Изменяемая из админки информация для участников
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="row">
+                                <div class="col-6 my-auto">
+                                    Зарегистрировано участников:
+                                </div>
+                                <div class="col-6 my-auto">
+                                    <div class="progress">
+                                        <div
+                                            class="progress-bar bg-info"
+                                            role="progressbar"
+                                            :style="calc_pb({'simple': {'all': main_status.total, 'curr': main_status.reg}, 'type': 'get_class'})">
+                                            -* calc_pb({'simple': {'all': main_status.total, 'curr': main_status.reg}, 'type': 'get_pct'}) *-
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include "footer.html" %}
+</div>
+<script>
+    let addrbook_info = new Vue({
+        el: '#addrbook_info',
+        delimiters: ['-*', '*-'],
+        data: function () {
+            return {
+                appLoading: true,
+                err_msg: '',
+                info_msg: '',
+                main_status: {
+                    total: 100,
+                    reg: 45,
+                },
+            }
+        },
+        methods: {
+
+        },
+        created() {
+            let self = this;
+            const loadable_fields = [
+                {'url': '/api/v1/main/status/', 'var': 'main_status'},
+            ];
+            //loadItems({'load': loadable_fields, 'self': self, 'sync': true}).then(() => {
+            //    self.appLoading = false;
+            //});
+            self.appLoading = false;
+        },
+    })
+</script>
+{% endblock %}

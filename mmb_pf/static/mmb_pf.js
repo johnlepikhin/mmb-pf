@@ -1,6 +1,15 @@
 // Hello friend, nice that you are here and hope with good intentions.
 // This whole system (frontend, backend) is invented, written and tested by me - fzeulf =)
 // It was a hard work during 2021 year, hope there is not so many bugs and this system will be usefull.
+
+/******************************************************************************
+                                Prototypes
+******************************************************************************/
+// Truncate string to defined length
+String.prototype.trunc = function(n) {
+    return this.substr(0,n-1)+(this.length>n?'...':'');
+};
+
 /******************************************************************************
                                 TOOLS
 ******************************************************************************/
@@ -120,7 +129,6 @@ function getDateObj(args = {}) {
 
     return dateObj;
 }
-
 
 /*
 Inupt fields validator

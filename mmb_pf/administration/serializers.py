@@ -23,11 +23,28 @@ class MMBPFUserSerializer(serializers.ModelSerializer):
     date_joined = DateTimeSerializer(read_only=True)
     gender = GenderSerializer()
     birth = DateSerializer()
+    team_name = serializers.CharField(source="team.name", read_only=True)
     # user_ranks = serializers.PrimaryKeyRelatedField(many=True, queryset=ESSUserRanks.objects.all())
 
     class Meta:
         model = MMBPFUsers
-        exclude = ["password", "is_superuser", "is_staff", "user_permissions", "groups"]
+        exclude = [
+            "password",
+            "is_superuser",
+            "is_staff",
+            "user_permissions",
+            "groups",
+            "user_type",
+            "team",
+        ]
+        read_only_fields = (
+            "is_active",
+            "modification_date",
+            "date_joined",
+            "last_login",
+            "username",
+        )
+        depth = 1
 
     # def to_internal_value(self, data):
     #     # catch password from request and store it to internal value
@@ -54,9 +71,7 @@ class MMBPFUserSerializer(serializers.ModelSerializer):
         #     user_rank_changed = True
         #     changed_data.append(f"Изменение рангов: {'; '.join(obj.name for obj in validated_data['user_ranks'])}")
 
-        skipped_fileds = [
-            "images",
-        ]
+        skipped_fileds = ["images", "team_name"]
         for attr, value in validated_data.items():
             if attr in skipped_fileds:
                 continue
@@ -81,7 +96,9 @@ class MMBPFUserSerializer(serializers.ModelSerializer):
 class MMBPFUserListSerializer(serializers.ModelSerializer):
     lfp = LFPSerializer()
     lfps = LFPShortSerializer()
-    # user_ranks = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+
+    street_name = serializers.CharField(source="street.name", read_only=True, allow_null=True)
+    sign_name = serializers.CharField(source="sign.name", read_only=True, allow_null=True)
 
     class Meta:
         model = MMBPFUsers
@@ -94,4 +111,9 @@ class MMBPFUserListSerializer(serializers.ModelSerializer):
             "email",
             "username",
             "tourist_club",
+            "team",
+            "street_name",
+            "sign_name",
+            "user_desc",
         ]
+        depth = 1

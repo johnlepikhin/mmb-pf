@@ -11,6 +11,7 @@ from django.contrib.auth.models import AbstractUser, Group
 from django.core.files.storage import FileSystemStorage
 from django.db import models
 
+from addrbook.models import CustomSignes, Streets, StreetSignes, Teams
 from mmb_pf.common_services import get_constant_models
 
 # This is shared storage - it CAN BE ACCESSED by nginx without authorization. So files should have unpredictable names
@@ -359,6 +360,14 @@ class MMBPFUsers(AbstractUser):
         help_text="Название туристического клуба если есть",
     )
 
+    team = models.ForeignKey(Teams, blank=False, null=True, on_delete=models.SET_NULL, help_text="Команда")
+    street = models.ForeignKey(Streets, blank=True, null=True, on_delete=models.SET_NULL, help_text="Улица")
+    sign = models.ForeignKey(
+        StreetSignes, blank=True, null=True, on_delete=models.SET_NULL, help_text="Уличный указатель"
+    )
+    custom_sign = models.ForeignKey(
+        CustomSignes, blank=True, null=True, on_delete=models.SET_NULL, help_text="Индивидуальный указатель"
+    )
     images = models.ManyToManyField(ImageStorage, blank=True, related_name="user_images")
     # files = models.ManyToManyField(FilePrivateStorage, blank=True, related_name="user_files")
 

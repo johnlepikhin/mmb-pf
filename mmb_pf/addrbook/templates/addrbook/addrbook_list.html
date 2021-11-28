@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+{% block title %}
+| Адресная книга
+{% endblock %}
+
+{% block main_menu %}
+    {% include "main_menu.html" %}
+{% endblock %}
+
+{% block body %}
+<div class="page">
+    {% include "header.html" %}
+    <div id="addrbook_list" class="mt-1 p-2">
+        {% include "modals.html" %}
+        <div class="row">
+            <div class="col-12">
+                <div v-if="appLoading" class="text-center py-5">
+                    <div class="logo-wrapper spinner-grow text-info" role="status" style="width: 3rem; height: 3rem;"></div>
+                </div>
+                <div v-else-if="err_msg" class="pt-2 px-2">
+                    <div class="alert alert-danger">
+                        <b>Ошибка!</b> -* err_msg *-
+                    </div>
+                </div>
+                <div v-else-if="info_msg" class="pt-2 px-2">
+                    <div class="alert alert-info">
+                        <b>Информация!</b> -* info_msg *-
+                    </div>
+                </div>
+                <div v-else class="row" data-spy="scroll">
+                    <div class="col-lg-12 pr-2">
+                        <div class="card mb-1 d-none d-sm-block">
+                            <div class="card-header white d-flex justify-content-between align-items-center py-2 mx-2">
+                                <span class="app-header">Адресная книга</span>
+                            </div>
+                        </div>
+                        <div class="card my-2">
+                            <!-- <div class="card-header white">
+
+                            </div> -->
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-sm-10">
+                                        <div class="md-form input-group my-0">
+                                            <div class="input-group-prepend">
+                                                <button class="btn btn-md btn-outline-grey m-0 px-3" type="button" @click="filter_key = ''">
+                                                    <span class="fas fa-times"></span>
+                                                </button>
+                                            </div>
+                                            <input type="text" class="form-control" placeholder="Имя | Команда" v-model="filter_key">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2 my-auto text-right">
+                                        <span class="text-gray text-small">Отобрано:<strong> -* participants_filtered.length *-</strong></span>
+                                    </div>
+                                </div>
+                                <div :class="table_fader()">
+                                    <table class="table table-sm table-bordered table-responsive mb-0" style="display: inline-table;">
+                                        <thead class="teal lighten-1 text-center text-white w-100">
+                                            <tr class="table-borderless">
+                                                <th v-for="header_obj in addrbook_list_cols" :class="header_obj.class">
+                                                    <span v-html="header_obj.name"></span>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="user_obj in participants_filtered" class="text-center my-auto">
+                                                <!--<td v-if="user_obj.team" :rowspan="user_obj.rowspan_day" class="d-none d-sm-table-cell">-->
+                                                <td v-if="user_obj.rowspan_team" :rowspan="user_obj.rowspan_team" class="d-none d-sm-table-cell">
+                                                    -* user_obj.team.id *-
+                                                </td>
+                                                <td v-if="user_obj.rowspan_team" :rowspan="user_obj.rowspan_team" class="">
+                                                    <span class="d-block d-sm-none">-* user_obj.team.name.trunc(10) *-</span>
+                                                    <span class="d-none d-sm-block">-* user_obj.team.name *-</span>
+                                                </td>
+                                                <td v-if="user_obj.lfp" class="">
+                                                    -* user_obj.lfp *-
+                                                </td>
+                                                <td>
+                                                    -* user_obj.street_name *- -* user_obj.sign_name *-
+                                                </td>
+                                                <td class="d-none d-lg-table-cell" v-html="user_obj.user_desc" >
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                            </div>
+                        </div>
+                        <div class="line"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include "footer.html" %}
+</div>
+<script>
+    let addrbook_list = new Vue({
+        el: '#addrbook_list',
+        delimiters: ['-*', '*-'],
+        data: {
+            appLoading: true,
+            table_reload: false,
+            filter_key: '',
+            err_msg: '',
+            info_msg: '',
+            response_success: '',
+            response_warn: '',
+            response_info: '',
+            participants: [], // loaded participants
+            addrbook_list_cols: [
+                {
+                    name: 'Номер',
+                    class: 'border-right d-none d-sm-table-cell', // show at medium
+                },
+                {
+                    name: 'Команда',
+                    class: 'border-right',
+                },
+                {
+                    name: 'Участник',
+                    class: 'border-right',
+                },
+                {
+                    name: 'Улица и указатель',
+                    class: 'border-right',
+                },
+                {
+                    name: 'Описание',
+                    class: 'border-right d-none d-lg-table-cell', // show at big
+                },
+            ],
+        },
+        computed: {
+            participants_filtered: function () {
+                let self = this;
+                let filter_key = self.filter_key.toLowerCase().trim();
+                let participants = self.participants;
+                // Filtering
+                if (filter_key) {
+                    participants = participants.filter(function (row) {
+                        if (String(row.lfp).toLowerCase().indexOf(filter_key) > -1)
+                            return true;
+                        if (String(row.team.name).toLowerCase().indexOf(filter_key) > -1)
+                            return true;
+                    });
+                }
+                // Data modifications
+                let team_num_stored = 0;
+                let idx_stored = 0;
+                let ready_participants = [];
+                for (let [i, user_obj] of participants.entries()) {
+                    user_obj['rowspan_team'] = 0;
+                    if (team_num_stored != user_obj.team.id) {
+                        team_num_stored = user_obj.team.id;
+                        idx_stored = i;
+                        user_obj['rowspan_team'] = 1;
+                    } else {
+                        participants[idx_stored]['rowspan_team'] += 1;
+                    }
+
+                    ready_participants.push(user_obj);
+                }
+                return ready_participants
+            },
+        },
+        watch: {
+            table_reload: function(val) {
+                let self = this;
+                self.table_fader();
+            },
+        },
+        methods: {
+            table_fader: function (args) {
+                let self = this;
+                let returned_class = {
+                    'animated': true,
+                };
+                if (self.table_reload) {
+                    returned_class['fadeOut'] = true;
+                } else {
+                    returned_class['fadeIn'] = true;
+                }
+                return returned_class;
+            },
+            // TODO: change to reg | not reg colorizer
+            get_weekday_color: function (args) {
+                let self = this;
+                let returned_class = {
+                    'indigo': true,
+                    'lighten-3': true,
+                };
+                if (args.day == 'сб' || args.day == 'вс') {
+                    returned_class = {
+                        'red': true,
+                        'lighten-3': true,
+                    };
+                }
+                for (idx in args.classes) {
+                    returned_class[args.classes[idx]] = true;
+                }
+                return returned_class;
+            },
+        },
+        created() {
+            let self = this;
+            const loadable_fields = [
+                {'url': '/api/v1/administration/users/', 'var': 'participants'},
+            ];
+
+            loadItems({'load': loadable_fields, 'self': self}).then(() => {
+                self.appLoading = false;
+            });
+            self.appLoading = false;
+        },
+    });
+</script>
+{% endblock %}
