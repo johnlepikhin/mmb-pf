@@ -3,7 +3,6 @@ import re
 
 from django.contrib.auth import password_validation, update_session_auth_hash
 from django.contrib.auth.decorators import permission_required
-from django.db.models import QuerySet
 from django.http import JsonResponse
 from rest_framework import exceptions, mixins, viewsets
 from rest_framework.renderers import JSONRenderer
@@ -58,14 +57,16 @@ class MMBPFUsersViewSet(
             else:
                 queryset = self.queryset
 
+            # this slice needed for droppting django queryset cache
+            queryset = self.queryset[: self.queryset.count()]
+
             # TODO: probably add backend query compose to the frontend
             # if queryset.count() > 1000 and not query_params:
             #     queryset = queryset.all()[:1000]
         else:
             queryset = self.queryset
 
-        # this slice needed for droppting django queryset cache
-        return queryset[: queryset.count()]
+        return queryset
 
     def get_serializer_class(self):
         if hasattr(self, "action_serializers"):

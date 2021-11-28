@@ -109,7 +109,7 @@ class MMBPFUsersAdmin(UserAdmin):
         (
             "Общее",
             {
-                "fields": [
+                "fields": [  # DONT CHANGE ORDER, HARDCODED in the get_form method
                     ("user_type",),
                     (
                         "is_active",
@@ -161,6 +161,28 @@ class MMBPFUsersAdmin(UserAdmin):
         ("Права", {"fields": ("groups",)}),
         ("Информация о активности", {"fields": ("last_login",)}),
     )
+
+    def get_fieldsets(self, request, obj=None):
+        if not obj:
+            return self.add_fieldsets
+
+        if request.user.is_superuser:
+            if "is_superuser" not in self.fieldsets[0][1]["fields"]:
+                self.fieldsets[0][1]["fields"].append("is_superuser")
+        else:
+            if "is_superuser" in self.fieldsets[0][1]["fields"]:
+                self.fieldsets[0][1]["fields"].remove("is_superuser")
+
+        return self.fieldsets
+
+    def get_queryset(self, request):
+        """
+        hide superusers from not superusers
+        """
+        qs = super(UserAdmin, self).get_queryset(request)
+        if not request.user.is_superuser:
+            qs = qs.filter(is_superuser=False)
+        return qs
 
 
 class SystemSettingsAdmin(admin.ModelAdmin):

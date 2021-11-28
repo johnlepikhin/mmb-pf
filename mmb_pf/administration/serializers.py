@@ -36,6 +36,9 @@ class MMBPFUserSerializer(serializers.ModelSerializer):
             "groups",
             "user_type",
             "team",
+            # they are not work in the forest
+            "email",
+            "phone",
         ]
         read_only_fields = (
             "is_active",
@@ -99,6 +102,7 @@ class MMBPFUserListSerializer(serializers.ModelSerializer):
 
     street_name = serializers.CharField(source="street.name", read_only=True, allow_null=True)
     sign_name = serializers.CharField(source="sign.name", read_only=True, allow_null=True)
+    custom_sign_name = serializers.CharField(source="custom_sign.name", read_only=True, allow_null=True)
 
     class Meta:
         model = MMBPFUsers
@@ -107,13 +111,12 @@ class MMBPFUserListSerializer(serializers.ModelSerializer):
             "lfp",
             "lfps",
             "is_active",
-            "phone",
-            "email",
             "username",
             "tourist_club",
             "team",
             "street_name",
             "sign_name",
+            "custom_sign_name",
             "user_desc",
         ]
         depth = 1

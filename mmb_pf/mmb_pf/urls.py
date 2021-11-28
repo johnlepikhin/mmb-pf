@@ -24,6 +24,7 @@ from django.urls import include, path, re_path
 from django.views.generic.base import RedirectView
 from rest_framework import routers
 
+import addrbook.views_api as addrbook_views_api
 from addrbook.views import addrbook_list
 from administration import views_api as administration_views_api
 
@@ -53,6 +54,7 @@ api_custom = [
 # API DRF
 router = routers.DefaultRouter()
 router.register(f"api/{APIVER}/administration/users", administration_views_api.MMBPFUsersViewSet)
+router.register(f"api/{APIVER}/addrbook/streets", addrbook_views_api.StreetsViewSet)
 
 urlpatterns = [
     # Main pages

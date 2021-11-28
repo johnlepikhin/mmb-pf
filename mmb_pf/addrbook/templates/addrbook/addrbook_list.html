@@ -43,11 +43,11 @@
                                     <div class="col-sm-10">
                                         <div class="md-form input-group my-0">
                                             <div class="input-group-prepend">
-                                                <button class="btn btn-md btn-outline-grey m-0 px-3" type="button" @click="filter_key = ''">
+                                                <button class="btn btn-md btn-sm btn-outline-grey m-0 px-3" type="button" @click="filter_key = ''">
                                                     <span class="fas fa-times"></span>
                                                 </button>
                                             </div>
-                                            <input type="text" class="form-control" placeholder="Имя | Команда" v-model="filter_key">
+                                            <input type="text" class="form-control" placeholder="Имя | Команда | № Команды | Турклуб" v-model="filter_key">
                                         </div>
                                     </div>
                                     <div class="col-sm-2 my-auto text-right">
@@ -65,21 +65,26 @@
                                         </thead>
                                         <tbody>
                                             <tr v-for="user_obj in participants_filtered" class="text-center my-auto">
-                                                <!--<td v-if="user_obj.team" :rowspan="user_obj.rowspan_day" class="d-none d-sm-table-cell">-->
-                                                <td v-if="user_obj.rowspan_team" :rowspan="user_obj.rowspan_team" class="d-none d-sm-table-cell">
-                                                    -* user_obj.team.id *-
-                                                </td>
+                                                <!-- <td v-if="user_obj.rowspan_team" :rowspan="user_obj.rowspan_team" class="d-none d-sm-table-cell">
+                                                    -* user_obj.team.team_id *-
+                                                </td> -->
                                                 <td v-if="user_obj.rowspan_team" :rowspan="user_obj.rowspan_team" class="">
+                                                    <span>№ -* user_obj.team.team_id *-</span>
                                                     <span class="d-block d-sm-none">-* user_obj.team.name.trunc(10) *-</span>
                                                     <span class="d-none d-sm-block">-* user_obj.team.name *-</span>
                                                 </td>
                                                 <td v-if="user_obj.lfp" class="">
-                                                    -* user_obj.lfp *-
+                                                    <a class="text-info" :href="'/addrbook/participant/' + user_obj.id">-* user_obj.lfp *-</a><br>
+                                                    <span v-if="user_obj.tourist_club" class="text text-gray text-xsmall">(-* user_obj.tourist_club *-)</span>
                                                 </td>
                                                 <td>
                                                     -* user_obj.street_name *- -* user_obj.sign_name *-
                                                 </td>
-                                                <td class="d-none d-lg-table-cell" v-html="user_obj.user_desc" >
+                                                <td class="d-none d-sm-table-cell">
+                                                    <span v-html="user_obj.user_desc"></span><br>
+                                                    <span v-if="user_obj.custom_sign_name" class="text-gray text-bold">
+                                                        Указатель: -*user_obj.custom_sign_name*-
+                                                    </span>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -112,16 +117,18 @@
             response_info: '',
             participants: [], // loaded participants
             addrbook_list_cols: [
-                {
-                    name: 'Номер',
-                    class: 'border-right d-none d-sm-table-cell', // show at medium
-                },
+                // d-none d-lg-table-cell - show at big
+                // d-none d-sm-table-cell - show at medium
+                // {
+                //    name: 'Номер',
+                //    class: 'border-right d-none d-sm-table-cell',
+                // },
                 {
                     name: 'Команда',
                     class: 'border-right',
                 },
                 {
-                    name: 'Участник',
+                    name: 'Участник<br>(турклуб)',
                     class: 'border-right',
                 },
                 {
@@ -130,7 +137,7 @@
                 },
                 {
                     name: 'Описание',
-                    class: 'border-right d-none d-lg-table-cell', // show at big
+                    class: 'border-right d-none d-sm-table-cell',
                 },
             ],
         },
@@ -142,9 +149,16 @@
                 // Filtering
                 if (filter_key) {
                     participants = participants.filter(function (row) {
+                        // protection against user without team
+                        if (! row.team)
+                            return false;
                         if (String(row.lfp).toLowerCase().indexOf(filter_key) > -1)
                             return true;
+                        if (String(row.team.team_id).toLowerCase().indexOf(filter_key) > -1)
+                            return true;
                         if (String(row.team.name).toLowerCase().indexOf(filter_key) > -1)
+                            return true;
+                        if (String(row.tourist_club).toLowerCase().indexOf(filter_key) > -1)
                             return true;
                     });
                 }
@@ -153,6 +167,10 @@
                 let idx_stored = 0;
                 let ready_participants = [];
                 for (let [i, user_obj] of participants.entries()) {
+                    // protection against user without team
+                    if (! user_obj.team) {
+                        continue;
+                    }
                     user_obj['rowspan_team'] = 0;
                     if (team_num_stored != user_obj.team.id) {
                         team_num_stored = user_obj.team.id;

@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block title %}
+| Карточка участника
+{% endblock %}
+
+{% block main_menu %}
+    {% include "main_menu.html" %}
+{% endblock %}
+
+{% block body %}
+
+<div class="page">
+    {% include "header.html" %}
+    <div id="participant_card" class="mt-1 p-2">
+        {% include "modals.html" %}
+        <div class="row">
+            <div class="col-12">
+                <div v-if="appLoading" class="text-center py-5">
+                    <div class="logo-wrapper spinner-grow text-info" role="status" style="width: 3rem; height: 3rem;"></div>
+                </div>
+                <div v-else-if="err_msg" class="pt-2 px-2">
+                    <div class="alert alert-danger">
+                        <b>Ошибка!</b> -* err_msg *-
+                    </div>
+                </div>
+                <div v-else-if="info_msg" class="pt-2 px-2">
+                    <div class="alert alert-info">
+                        <b>Информация!</b> -* info_msg *-
+                    </div>
+                </div>
+                <div v-else class="row">
+                    <!-- form header -->
+                    <div class="col-md-12 pr-2">
+                        <div class="card mb-1">
+                            <div class="card-header white">
+                                <div class="row app-header">
+                                    <div class="col-sm-12 col-md-6 col-lg-8 pl-4">
+                                        <div class="row">
+                                            -* participant.last_name *- -* participant.first_name *- -* participant.patronymic *-
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- <div class="row justify-content-end app-header">
+
+                                </div> -->
+                            </div>
+                            <div class="card-body py-1">
+
+                            </div>
+                            <!-- <div class="card-footer form-horizontal">
+                            </div> -->
+                        </div>
+                        <!-- form header end -->
+                        <!-- Form card -->
+                        <div class="card my-2">
+                            <div class="card-body form-horizontal" :id="'id_form_block_' + ++cnt_id_init_template">
+                                <div class="form-group row mb-2">
+                                    <label class="col-sm-3 my-auto text-bold text-gray">ФИО</label>
+                                    <div class="col-sm-9 my-auto">
+                                        <span class="">-* participant.last_name *- -* participant.first_name *- -* participant.patronymic *-</span>
+                                    </div>
+                                </div>
+                                <div class="form-group row mb-2">
+                                    <label class="col-sm-3 my-auto text-bold text-gray">Команда</label>
+                                    <div class="col-sm-9 my-auto">
+                                        <span class="">-* participant.team_name *-</span>
+                                    </div>
+                                </div>
+                                <div v-if="participant.tourist_club" class="form-group row mb-2">
+                                    <label class="col-sm-3 my-auto text-bold text-gray">Турклуб</label>
+                                    <div class="col-sm-9 my-auto">
+                                        <span class="">-* participant.tourist_club *-</span>
+                                    </div>
+                                </div>
+                                <div class="line"></div>
+                                <div v-if="participant.street">
+                                    <div class="form-group row mb-2">
+                                        <label class="col-sm-3 my-auto text-bold text-gray">Улица</label>
+                                        <div class="col-sm-9 my-auto">
+                                            -*participant.street.name*- -*participant.sign.name*-
+                                        </div>
+                                    </div>
+                                    <div v-if="participant.custom_sign"  class="form-group row mb-2">
+                                        <label class="col-sm-3 my-auto text-bold text-gray">Указатель</label>
+                                        <div class="col-sm-9 my-auto">
+                                            -*participant.custom_sign.name*-
+                                        </div>
+                                    </div>
+                                    <div class="form-group row mb-2">
+                                        <label class="col-sm-3 my-auto text-bold text-gray">Описание</label>
+                                        <div class="col-sm-9 my-0">
+                                            <span class="my-0" v-html="participant.user_desc"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div v-else class="row d-flex justify-content-center">
+                                    <span class="text-gray">Участник ещё не зарегистрировался</span>
+                                </div>
+                                <div v-if="participant.images.length" class="line" :id="'id_form_block_' + ++cnt_id_init_template"></div>
+                                <div v-if="participant.images.length" class="form-group row d-flex justify-content-center mb-2">
+                                    <div class="col-sm-12" style="max-width: 600px;">
+                                        <ess-gallery
+                                            :images="participant.images"
+                                        ></ess-gallery>
+                                    </div>
+                                </div>
+                                <div class="line"></div>
+                                <div v-if="participant.modification_date" class="form-group row">
+                                    <div class="col-sm-12 mx-0">
+                                        <span class="text-small text-gray mx-0"><i class="far fa-clock"></i> Версия от -*participant.modification_date*-</span>
+                                    </div>
+                                </div>
+                                <div class="line" :id="cnt_id_init_template = 0"></div> <!-- last line should reset counter -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include "footer.html" %}
+</div>
+<script>
+    let cnt_id_init = 0;
+    let cnt_id_init_template = 0;
+    let participant_card = new Vue({
+        el: '#participant_card',
+        delimiters: ['-*', '*-'],
+        data: {
+            appLoading: true,
+            participant_id: Number("{{ participant_id }}"),
+            history: "{{ history }}",
+            err_msg: '',
+            info_msg: '',
+            response: '', // response good answ
+            response_warn: '', // response bad answ
+            participant: {
+            },
+            streets_dict: [],
+            streets_dict: {},
+        },
+        components: {
+            'ess-gallery': ESSGallery,
+        },
+        methods: {
+            getForm: function (formid) {
+                let self = this;
+                getDataV2('/api/v1/administration/users/' + formid + '/', {status: true}).then(data => {
+                    if (data.status === 403) {
+                        self.info_msg = data.data.msg;
+                    } else if (data.status === 404) {
+                        self.err_msg = 'Участника с таким id не существует';
+                    } else if (data.status !== 200) {
+                        self.err_msg = data.data.msg;
+                    } else {
+                        self.participant = data.data;
+                    }
+                }).then(data => {
+                    self.appLoading = false;
+                }).catch(err => {
+                });
+            },
+        },
+        created() {
+            let self = this;
+            self.getForm(self.participant_id);
+        },
+    });
+</script>
+{% endblock %}
