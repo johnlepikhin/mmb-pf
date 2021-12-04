@@ -16,4 +16,5 @@ disable = [
     "logging-fstring-interpolation", # Hate it, f-string really readable thing
     "broad-except", # really hard to know what type of exception could be
     "wrong-import-order", # black do it
+    "fixme", # todos tree vscode plugin catch them
 ]

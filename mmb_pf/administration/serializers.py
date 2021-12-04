@@ -1,5 +1,11 @@
-from rest_framework import serializers
+from rest_framework import exceptions, serializers
 
+from addrbook.serializers import (
+    CustomSignesSerializer,
+    StreetSignesSerializer,
+    StreetsSerializer,
+)
+from administration.models import ParticipantCardActionsJournal
 from mmb_pf.common_serializers import (
     DateSerializer,
     DateTimeSecSerializer,
@@ -11,7 +17,7 @@ from mmb_pf.common_serializers import (
 )
 from mmb_pf.common_services import get_timezone
 
-from .models import MMBPFUsers
+from .models import MMBPFUsers, ParticipantCardActionsJournal
 
 timezone = get_timezone()
 lfps = LFPSerializer()
@@ -22,8 +28,11 @@ class MMBPFUserSerializer(serializers.ModelSerializer):
     images = ImagesSerializer(read_only=True)
     date_joined = DateTimeSerializer(read_only=True)
     gender = GenderSerializer()
-    birth = DateSerializer()
+    birth = DateSerializer(allow_null=True)
     team_name = serializers.CharField(source="team.name", read_only=True)
+    street = StreetsSerializer(required=True, allow_null=False)
+    sign = StreetSignesSerializer(required=True, allow_null=False)
+    custom_sign = CustomSignesSerializer(required=False, allow_null=True)
     # user_ranks = serializers.PrimaryKeyRelatedField(many=True, queryset=ESSUserRanks.objects.all())
 
     class Meta:
@@ -46,6 +55,12 @@ class MMBPFUserSerializer(serializers.ModelSerializer):
             "date_joined",
             "last_login",
             "username",
+            "gender",
+            "first_name",
+            "last_name",
+            "birth",
+            "patronymic",
+            "tourist_club",
         )
         depth = 1
 
@@ -63,35 +78,55 @@ class MMBPFUserSerializer(serializers.ModelSerializer):
         # instance - OLD data
         # validated_data - NEW data
 
+        # check modification_date
+        if validated_data.get("modification_date", None):
+            if validated_data["modification_date"].astimezone(
+                get_timezone("utc")
+            ) != instance.modification_date.replace(microsecond=0):
+                raise exceptions.ValidationError(
+                    "Другой пользователь изменил данные этой карточки, к сожалению ваши данные не могут быть сохранены "
+                    + "обновите форму и введите их заново"
+                )
+        else:
+            raise exceptions.ValidationError(f"Поле 'modification_date' является обязательным")
+
         changed_data = []
 
-        if instance.is_active and not validated_data["is_active"]:
-            changed_data.append("Блокировка аккаунта")
-        elif not instance.is_active and validated_data["is_active"]:
-            changed_data.append("Разблокировка аккаунта")
+        # if instance.is_active and not validated_data["is_active"]:
+        #     changed_data.append("Блокировка аккаунта")
+        # elif not instance.is_active and validated_data["is_active"]:
+        #     changed_data.append("Разблокировка аккаунта")
 
         # if [ur for ur in instance.user_ranks.all()] != validated_data["user_ranks"]:
         #     user_rank_changed = True
         #     changed_data.append(f"Изменение рангов: {'; '.join(obj.name for obj in validated_data['user_ranks'])}")
 
-        skipped_fileds = ["images", "team_name"]
+        skipped_fileds = [
+            "images",
+        ]
         for attr, value in validated_data.items():
             if attr in skipped_fileds:
                 continue
-                # if attr == "user_ranks":
-                #     instance.user_ranks.set(validated_data["user_ranks"])
-                # else:
-            setattr(instance, attr, value)
+
+            if attr != "modification_date" and value != getattr(instance, attr):
+                changed_data.append(f"Изменение {attr}: {value}")
+
+            if attr == "user_ranks":
+                instance.user_ranks.set(validated_data["user_ranks"])
+            else:
+                setattr(instance, attr, value)
 
         instance.save()
+
         # store in journal
         if not changed_data:
             changed_data.append("Изменение данных карточки")
-        # PersonnelCardsActionsJournal.objects.add_to_journal(
-        #     serializer=self,
-        #     personnel_id=instance.id,
-        #     desc="; ".join(changed_data),
-        # )
+
+        ParticipantCardActionsJournal.objects.add_to_journal(
+            serializer=self,
+            participant_id=instance.id,
+            desc="; ".join(changed_data),
+        )
 
         return instance
 
@@ -120,3 +155,11 @@ class MMBPFUserListSerializer(serializers.ModelSerializer):
             "user_desc",
         ]
         depth = 1
+
+
+class ParticipantCardActionsJournalSerializer(serializers.ModelSerializer):
+    creation_date = DateTimeSerializer()
+
+    class Meta:
+        model = ParticipantCardActionsJournal
+        exclude = ["id"]

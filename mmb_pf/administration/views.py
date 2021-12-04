@@ -18,3 +18,12 @@ def database_operations(request):
         "administration/database_operations.html",
         {},
     )
+
+
+@permission_required("administration.view_administration", raise_exception=True)
+def participant_card_actions_journal(request):
+    return render(
+        request,
+        "administration/participant_card_actions_journal.html",
+        {},
+    )

@@ -2,10 +2,12 @@ from rest_framework import exceptions, mixins, viewsets
 from rest_framework.renderers import JSONRenderer
 
 from mmb_pf.common_services import get_constant_models
-from mmb_pf.drf_api import BaseModelPermissions
 
-from .models import Streets
-from .serializers import StreetsSerializer
+from .models import CustomSignes, Streets
+from .serializers import CustomSignesSerializer, StreetsSerializer
+
+# from mmb_pf.drf_api import BaseModelPermissions
+
 
 constant_models = get_constant_models()
 ###############################################################################
@@ -16,8 +18,24 @@ class StreetsViewSet(viewsets.ReadOnlyModelViewSet):
     """
 
     renderer_classes = [JSONRenderer]
-    queryset = Streets.objects.filter().values().order_by("name")
+    queryset = Streets.objects.order_by("name")
     serializer_class = StreetsSerializer
+
+    # permission_classes = [BaseModelPermissions]
+
+    def permission_denied(self, request, message):
+        raise exceptions.PermissionDenied("У вас нет прав для выполнения данного запроса")
+
+
+class CustomSignesViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Get custom signes
+    """
+
+    renderer_classes = [JSONRenderer]
+    queryset = CustomSignes.objects.order_by("name")
+    serializer_class = CustomSignesSerializer
+
     # permission_classes = [BaseModelPermissions]
 
     def permission_denied(self, request, message):

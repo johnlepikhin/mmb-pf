@@ -1,0 +1,325 @@
+{% extends "base.html" %}
+{% block title %}
+| Редактирование карточки участника
+{% endblock %}
+
+{% block main_menu %}
+    {% include "main_menu.html" %}
+{% endblock %}
+
+{% block body %}
+
+<div class="page">
+    {% include "header.html" %}
+    <div id="participant_card_edit" class="mt-1 p-2">
+        {% include "modals.html" %}
+        <div class="row">
+            <div class="col-12">
+                <div v-if="appLoading" class="text-center py-5">
+                    <div class="logo-wrapper spinner-grow text-info" role="status" style="width: 3rem; height: 3rem;"></div>
+                </div>
+                <div v-else-if="err_msg" class="pt-2 px-2">
+                    <div class="alert alert-danger">
+                        <b>Ошибка!</b> -* err_msg *-
+                    </div>
+                </div>
+                <div v-else-if="info_msg" class="pt-2 px-2">
+                    <div class="alert alert-info">
+                        <b>Информация!</b> -* info_msg *-
+                    </div>
+                </div>
+                <div v-else class="row">
+                    <!-- form header -->
+                    <div class="col-md-12 pr-2">
+                        <div class="card mb-1">
+                            <div class="card-header white">
+                                <div class="row app-header justify-content-between">
+                                    <div class="my-auto ml-3">
+                                        -* participant.last_name *- -* participant.first_name *- -* participant.patronymic *-
+                                        <i v-if="participant_changed" class="far fa-save m-0 p-0 text-danger ml-2"></i>
+                                    </div>
+                                    <div class="">
+                                        <button class="btn btn-sm btn-outline-success" :disabled="! participant.street" @click="sendForm(participant_id)">
+                                            <span>Сохранить <i class="fas fa-user-edit"></i></span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <!-- <div class="row justify-content-end app-header">
+
+                                </div> -->
+                            </div>
+                            <div class="card-body py-1">
+                                <div class="row">
+                                    <div class="col-sm-12 mx-0">
+                                        <span class="text-xsmall text-warning mx-0">
+                                            <i class="fas fa-exclamation-circle"></i> Пожалуйста не изменяйте чужие данные
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- <div class="card-footer form-horizontal">
+                            </div> -->
+                        </div>
+                        <!-- form header end -->
+                        <!-- Form card -->
+                        <div class="card my-2">
+                            <div class="card-body form-horizontal" :id="'id_form_block_' + ++cnt_id_init_template">
+                                <div class="form-group row mb-2">
+                                    <label class="col-sm-3 my-auto text-bold text-gray">ФИО</label>
+                                    <div class="col-sm-9 my-auto">
+                                        <span class="">-* participant.last_name *- -* participant.first_name *- -* participant.patronymic *-</span>
+                                    </div>
+                                </div>
+                                <div class="form-group row mb-2">
+                                    <label class="col-sm-3 my-auto text-bold text-gray">Команда</label>
+                                    <div class="col-sm-9 my-auto">
+                                        <span class="">-* participant.team_name *-</span>
+                                    </div>
+                                </div>
+                                <div v-if="participant.tourist_club" class="form-group row mb-2">
+                                    <label class="col-sm-3 my-auto text-bold text-gray">Турклуб</label>
+                                    <div class="col-sm-9 my-auto">
+                                        <span class="">-* participant.tourist_club *-</span>
+                                    </div>
+                                </div>
+                                <div class="line"></div>
+                                <div>
+                                    <div class="form-group row mb-2">
+                                        <label class="col-sm-3 my-auto text-bold text-gray">Улица</label>
+                                        <div class="col-sm-7 my-auto">
+                                            <multiselect
+                                                v-model="participant.street"
+                                                :options=streets
+                                                :custom-label="obj => obj.name"
+                                                option-height="30"
+                                                placeholder="Выберите один из вариантов"
+                                                deselect-label="Нажмите для удаления"
+                                                select-label="Нажмите для выбора"
+                                                selected-label="Выбрано"
+                                                track-by="id"
+                                                :class="divBorderClass({classes: [], valid: validation.street})">
+                                                <div slot="noResult">Ничего не найдено</div>
+                                            </multiselect>
+                                            <div class="invalid-feedback align-right">
+                                                -* form_checks.street.err_msg *-
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row mb-2">
+                                        <label class="col-sm-3 my-auto text-bold text-gray">Указатель</label>
+                                        <div class="col-sm-7 my-auto">
+                                            <multiselect
+                                                v-model="participant.sign"
+                                                :options="participant.street ? participant.street.signes : []"
+                                                :custom-label="obj => obj.name"
+                                                option-height="30"
+                                                placeholder="Выберите один из вариантов"
+                                                deselect-label="Нажмите для удаления"
+                                                select-label="Нажмите для выбора"
+                                                selected-label="Выбрано"
+                                                track-by="id"
+                                                :class="divBorderClass({classes: [], valid: validation.sign})"
+                                                :disabled="! participant.street">
+                                                <div slot="noResult">Ничего не найдено</div>
+                                            </multiselect>
+                                            <div class="invalid-feedback align-right">
+                                                -* form_checks.sign.err_msg *-
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row mb-2">
+                                        <label class="col-sm-3 my-auto text-bold text-gray">Описание</label>
+                                        <div class="col-sm-7 my-auto">
+                                            <ckeditor
+                                                :editor="editor"
+                                                v-model="participant.user_desc"
+                                                :config="editorConfig">
+                                            </ckeditor>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row mb-2">
+                                        <label class="col-sm-3 my-auto text-bold text-gray">Индивидуальный Указатель</label>
+                                        <div class="col-sm-7 my-auto">
+                                            <multiselect
+                                                v-model="participant.custom_sign"
+                                                :options="customsignes"
+                                                :custom-label="obj => obj.name"
+                                                option-height="30"
+                                                placeholder="Выберите один из вариантов"
+                                                deselect-label="Нажмите для удаления"
+                                                select-label="Нажмите для выбора"
+                                                selected-label="Выбрано"
+                                                track-by="id"
+                                                :disabled="! participant.street">
+                                                <div slot="noResult">Ничего не найдено</div>
+                                            </multiselect>
+                                        </div>
+                                    </div>
+                                    <!-- <div v-if="participant.custom_sign" class="form-group row mb-2">
+                                        <label class="col-sm-3 my-auto text-bold text-gray">Индивидуальный Указатель</label>
+                                        <div class="col-sm-9 my-auto">
+                                            -*participant.custom_sign.name*-
+                                        </div>
+                                    </div> -->
+                                </div>
+                                <div v-if="participant.images.length" class="line" :id="'id_form_block_' + ++cnt_id_init_template"></div>
+                                <div v-if="participant.images.length" class="form-group row d-flex justify-content-center mb-2">
+                                    <div class="col-sm-12" style="max-width: 600px;">
+                                        <ess-gallery
+                                            :images="participant.images"
+                                        ></ess-gallery>
+                                    </div>
+                                </div>
+                                <div class="line"></div>
+                                <div v-if="participant.modification_date" class="form-group row">
+                                    <div class="col-sm-12 mx-0">
+                                        <span class="text-small text-gray mx-0"><i class="far fa-clock"></i> Версия от -*participant.modification_date*-</span>
+                                    </div>
+                                </div>
+                                <div class="line" :id="cnt_id_init_template = 0"></div> <!-- last line should reset counter -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include "footer.html" %}
+</div>
+<script>
+    let cnt_id_init = 0;
+    let cnt_id_init_template = 0;
+    let participant_card_edit = new Vue({
+        el: '#participant_card_edit',
+        delimiters: ['-*', '*-'],
+        data: {
+            appLoading: true,
+            participant_id: Number("{{ participant_id }}"),
+            history: "{{ history }}",
+            err_msg: '',
+            info_msg: '',
+            response: '', // response good answ
+            response_warn: '', // response bad answ
+            participant: {},
+            participant_changed: false,
+            streets: [],
+            customsignes: [],
+            validation: {
+                street: true,
+                sign: true,
+            },
+            form_checks: { // form field validation settings
+                street: {
+                    type: 'object_not_empty',
+                    err_msg: 'Улица должна быть выбрана',
+                },
+                sign: {
+                    type: 'object_not_empty',
+                    err_msg: 'Уличный указатель должен быть выбран',
+                },
+            },
+            editor: ClassicEditor,
+            editorConfig: {
+                language: 'ru',
+                placeholder: 'Описание как добраться',
+                toolbar: {
+                    items: [
+                        'heading', '|',
+                        'bold', 'italic', '|',
+                        'numberedList', 'bulletedList', 'insertTable', '|',
+                        'indent', 'outdent', '|',
+                        'blockQuote', 'link', 'mediaEmbed', '|',
+                        'undo', 'redo',
+                    ],
+                    viewportTopOffset: 15,
+                    shouldNotGroupWhenFull: true
+                }
+            },
+        },
+        components: {
+            'ess-gallery': ESSGallery,
+            'multiselect': VueMultiselect.Multiselect,
+            ckeditor: CKEditor.component,
+        },
+        watch: {
+            participant: {
+                handler(val) {
+                    let self = this;
+                    if (! self.appLoading) {
+                        self.participant_changed = true;
+                    }
+                },
+                deep: true
+            },
+        },
+        methods: {
+            sendForm: function(formid) {
+                let self = this;
+                let all_valid = checkFormFields({
+                    form_checks: self.form_checks,
+                    data_to_check: self.participant,
+                    validation: self.validation,
+                });
+
+                if (all_valid) {
+                    let participant_prepared = {};
+
+                    Object.entries(self.participant).forEach(([key,value])=>{
+                        if ((key === "images") || (key === "images_blob")) {
+                            return;
+                        }
+                        participant_prepared[key] = value;
+                    });
+                    sendDataV2({
+                        type: 'json',
+                        method: 'PATCH',
+                        url: '/api/v1/administration/users/' + formid + '/',
+                        jsondata: participant_prepared,
+                        // files: files,
+                    }).then(data => {
+                        self.response_warn = '';
+                        self.participant = data;
+                    }).then(data => {
+                        self.participant_changed = false;
+                        window.location.replace("/addrbook/participant/" + formid + "/");
+                    }).catch(err => {
+                        self.response_warn = err.msg;
+                        modal_show({id: '#modalResponseWarn'});
+                    });
+                } else {
+                    self.response_warn = 'Некоторые поля заполнены неверно, проверьте пожалуйста';
+                    modal_show({id: '#modalResponseWarn'});
+                }
+            },
+            getForm: function (formid) {
+                let self = this;
+                getDataV2('/api/v1/administration/users/' + formid + '/', {status: true}).then(data => {
+                    if (data.status === 403) {
+                        self.info_msg = data.data.msg;
+                    } else if (data.status === 404) {
+                        self.err_msg = 'Участника с таким id не существует';
+                    } else if (data.status !== 200) {
+                        self.err_msg = data.data.msg;
+                    } else {
+                        self.participant = data.data;
+                    }
+                }).then(data => {
+                    self.appLoading = false;
+                }).catch(err => {
+                });
+            },
+        },
+        created() {
+            let self = this;
+            const loadable_fields = [
+                {'url': '/api/v1/addrbook/streets/', 'var': 'streets'},
+                {'url': '/api/v1/addrbook/customsignes/', 'var': 'customsignes'},
+            ];
+
+            loadItems({'load': loadable_fields, 'self': self, 'sync': false}).then(() => {
+                self.getForm(self.participant_id);
+            });
+        },
+    });
+</script>
+{% endblock %}

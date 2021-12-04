@@ -9,6 +9,7 @@ import magic
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser, Group
 from django.core.files.storage import FileSystemStorage
+from django.core.validators import MinValueValidator
 from django.db import models
 
 from addrbook.models import CustomSignes, Streets, StreetSignes, Teams
@@ -395,3 +396,98 @@ class MMBPFGroups(Group):
 
     class Meta:
         verbose_name_plural = "Группы"
+
+
+class JournalsManager(models.Manager):
+    def add_to_journal(self, **kwargs):
+        new_entry = None
+        max_entries = SystemSettings.objects.get_option(name="max_journal_entries", default=10000)
+
+        if "username" not in kwargs or "user_id" not in kwargs:
+            if "serializer" in kwargs:
+                request = kwargs["serializer"].context.get("request")
+                if request and hasattr(request, "user"):
+                    user = request.user
+                    kwargs["username"] = user.username or "Неавторизованный пользователь"
+                    kwargs["user_id"] = user.id
+
+                kwargs["user_agent"] = request.META["HTTP_USER_AGENT"]
+                kwargs["ip"] = request.META.get("REMOTE_HOST", None) or request.META.get("REMOTE_ADDR", "")
+                del kwargs["serializer"]
+            else:
+                kwargs["username"] = "Неавторизованный пользователь"
+                kwargs["user_id"] = None
+
+        if "desc" in kwargs:
+            kwargs["desc"] = kwargs["desc"][:4095]
+
+        try:
+            new_entry = self.create(**kwargs)
+        except Exception:
+            pass
+
+        if self.get_queryset().count() >= max_entries:
+            for instance_id in self.get_queryset().values_list("id", flat=True):
+                self.get_queryset().get(id=instance_id).delete()
+                if self.get_queryset().count() <= max_entries:
+                    break
+
+        return new_entry
+
+
+class ParticipantCardActionsJournal(models.Model):
+    creation_date = models.DateTimeField(
+        auto_now_add=True,
+        unique=False,
+        blank=False,
+        null=False,
+        help_text="Дата и время создания события",
+    )
+
+    ip = models.CharField(
+        default="",
+        unique=False,
+        blank=True,
+        max_length=48,
+        help_text="ip адрес с которого пришёл запрос",
+    )
+
+    user_agent = models.CharField(
+        default="",
+        unique=False,
+        blank=True,
+        max_length=1024,
+        help_text="User agent котрый прислал браузер пользователя",
+    )
+
+    username = models.CharField(
+        default="",
+        unique=False,
+        blank=False,
+        max_length=256,
+        help_text="username пользователя вошедшего в систему",
+    )
+
+    user_id = models.IntegerField(
+        null=True,
+        default=None,
+        blank=True,
+        validators=[MinValueValidator(1)],
+        help_text="id пользователя",
+    )
+
+    participant_id = models.IntegerField(
+        default=None,
+        blank=False,
+        validators=[MinValueValidator(1)],
+        help_text="id карточки участника",
+    )
+
+    desc = models.CharField(
+        default="",
+        blank=True,
+        max_length=4096,
+        help_text="Описание действия",
+    )
+
+    objects = JournalsManager()

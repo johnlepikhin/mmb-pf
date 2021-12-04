@@ -8,8 +8,6 @@ from django.db import models
 from django.utils.html import mark_safe
 from jsoneditor.forms import JSONEditor
 
-from addrbook.models import Streets
-
 from .forms import (
     ImageStorageForm,
     MMBPFUsersCreationForm,
@@ -179,10 +177,10 @@ class MMBPFUsersAdmin(UserAdmin):
         """
         hide superusers from not superusers
         """
-        qs = super(UserAdmin, self).get_queryset(request)
+        queryset = super().get_queryset(request)
         if not request.user.is_superuser:
-            qs = qs.filter(is_superuser=False)
-        return qs
+            queryset = queryset.filter(is_superuser=False)
+        return queryset
 
 
 class SystemSettingsAdmin(admin.ModelAdmin):

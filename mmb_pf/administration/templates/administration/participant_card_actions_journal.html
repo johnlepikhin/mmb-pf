@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+{% block title %}
+| Журнал действий с карточками участников
+{% endblock %}
+
+{% block main_menu %}
+    {% include "main_menu.html" %}
+{% endblock %}
+
+{% block body %}
+<div class="page">
+    {% include "header.html" %}
+    <div id="participant_card_actions_journal" class="mt-1 p-2">
+        {% include "modals.html" %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-1">
+                    <div class="card-header white d-flex justify-content-between align-items-center py-2 mx-2">
+                        <div class="row app-header">
+                            Журнал действий с карточками участников
+                        </div>
+                        <!-- <ul class="list-unstyled d-flex align-items-center mb-0">
+                            <li>
+
+                            </li>
+                        </ul> -->
+                    </div>
+                    <div class="card-body py-1">
+                        <div class="row">
+                            <div class="col-sm-12 mx-0">
+                                <span class="text-small text-gray mx-0">
+                                    <i class="fas fa-database"></i> В таблице выводится ограниченное количество последних записей, используйте параметры поиска
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer form-horizontal">
+                        <!-- Requests selectors -->
+                        <div class="row">
+                            <div class="col-sm-8">
+                                <div class="form-group row" v-if="! appLoading">
+                                    <label class="col-sm-3 form-control-label my-auto">Пользователь</label>
+                                    <div class="col-sm-9 my-auto">
+                                        <multiselect
+                                            v-model="selected_user_id"
+                                            :options=users
+                                            :custom-label="obj => '[' + obj.username + '] ' + obj.lfp"
+                                            option-height="30"
+                                            placeholder="Выберите логин пользователя"
+                                            deselect-label="Нажмите для удаления"
+                                            select-label="Нажмите для выбора"
+                                            selected-label="Выбрано"
+                                            track-by="id"
+                                            class="">
+                                            <div slot="noResult">Ничего не найдено</div>
+                                        </multiselect>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group row">
+                                    <label class="col-sm-6 form-control-label my-auto">№ Карточки</label>
+                                    <div class="col-sm-6 my-auto">
+                                        <input
+                                            type="text"
+                                            :class="fieldBorderClass({classes: [], size: 'med', type: form_checks.participant_id.type, valid: validation.participant_id})"
+                                            placeholder="123"
+                                            v-model.trim="search_params.participant_id"
+                                            @change="checkField('participant_id')">
+                                        <div class="invalid-feedback align-right">
+                                            -* form_checks.participant_id.err_msg *-
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row justify-content-around">
+                            <button type="button" class="btn btn-sm btn-default mr-3" @click="search_params={};rows=[];info_msg = '';selected_user_id=null">
+                                <i class="fas fa-times"></i> Очистить
+                            </button>
+                            <button id="archiveSearch" type="button" class="btn btn-sm btn-info" @click="search()">
+                                <i class="fas fa-search"></i> Поиск
+                            </button>
+                        </div>
+                        <!-- Requests selectors end -->
+                    </div>
+                </div>
+                <!-- Results -->
+                <div class="card mb-1">
+                    <div class="card-header white">
+                        <div v-if="appLoading" class="text-center py-5">
+                            <div class="logo-wrapper spinner-grow text-info" role="status" style="width: 3rem; height: 3rem;">
+                            </div>
+                        </div>
+                        <div v-else-if="err_msg" class="pt-2 px-2">
+                            <div class="alert alert-danger">
+                                <b>Ошибка!</b> -* err_msg *-
+                            </div>
+                        </div>
+                        <div v-else-if="info_msg" class="pt-2 px-2">
+                            <div class="alert alert-info">
+                                <b>Информация!</b> -* info_msg *-
+                            </div>
+                        </div>
+                    </div>
+                    <div v-if="! appLoading" class="card-body py-1">
+                        <vue-bootstrap4-table
+                            :rows="rows"
+                            :columns="columns"
+                            :actions="actions"
+                            :config="config"
+                            :classes="classes">
+                            <template slot="participant_id" slot-scope="props">
+                                <a :href="'/addrbook/participant/'+ props.cell_value + '/'" class="text-primary">-*props.cell_value*-</a>
+                            </template>
+                            <template slot="reset-button-text">
+                                <i class="fas fa-broom"></i>
+                                <span class="d-none d-md-inline-block">Очистить все</span>
+                            </template>
+                            <template slot="global-search-clear-icon">
+                                <i class="fas fa-times"></i>
+                            </template>
+                            <template slot="simple-filter-clear-icon">
+                                <i class="fas fa-times"></i>
+                            </template>
+                            <template slot="sort-asc-icon">
+                                <i class="fas fa-sort-up"></i>
+                            </template>
+                            <template slot="sort-desc-icon">
+                                <i class="fas fa-sort-down"></i>
+                            </template>
+                            <template slot="no-sort-icon">
+                                <i class="fas fa-sort"></i>
+                            </template>
+                            <template slot="paginataion-previous-button">
+                                <i class="fas fa-angle-left"></i>
+                            </template>
+                            <template slot="paginataion-next-button">
+                                <i class="fas fa-angle-right"></i>
+                            </template>
+                            <template slot="pagination-info" slot-scope="props">
+                                Всего строк: -*props.originalRowsLength*- |
+                                Отфильтровано: -*props.filteredRowsLength*-
+                            </template>
+                            <template slot="selected-rows-info" slot-scope="props">
+                                Выбрано: -*props.selectedItemsCount*-
+                            </template>
+                            <template slot="empty-results">
+                                Ничего не найдено
+                            </template>
+                        </vue-bootstrap4-table>
+                    </div>
+                </div>
+                <!-- Results end -->
+            </div>
+        </div>
+    </div>
+    {% include "footer.html" %}
+</div>
+<script>
+    let participant_card_actions_journal = new Vue({
+        el: '#participant_card_actions_journal',
+        delimiters: ['-*', '*-'],
+        data: {
+            appLoading: true,
+            err_msg: '',
+            info_msg: '',
+            search_params: {},
+            rows: [],
+            columns: [
+                {
+                    label: "Дата",
+                    name: "creation_date",
+                    filter: {
+                        type: "simple",
+                        placeholder: "Дата"
+                    },
+                    sort: true,
+                    column_classes: "col-custom-2",
+                },
+                {
+                    label: "Пользователь",
+                    name: "username",
+                    filter: {
+                        type: "simple",
+                        placeholder: "Пользователь",
+                    },
+                    sort: true,
+                    column_classes: "col-custom-2",
+                },
+                {
+                    label: "IP",
+                    name: "ip",
+                    filter: {
+                        type: "simple",
+                        placeholder: "ip"
+                    },
+                    sort: true,
+                    column_classes: "col-custom-1",
+                },
+                {
+                    label: "UA",
+                    name: "user_agent",
+                    filter: {
+                        type: "simple",
+                        placeholder: "ua"
+                    },
+                    sort: true,
+                    column_classes: "col-custom-4",
+                    row_text_alignment:  "text-left",
+                },
+                {
+                    label: "№ Карточки",
+                    name: "participant_id",
+                    filter: {
+                        type: "simple",
+                        placeholder: "id"
+                    },
+                    sort: true,
+                    column_classes: "col-custom-1",
+                },
+                {
+                    label: "Описание",
+                    name: "desc",
+                    filter: {
+                        type: "simple",
+                        placeholder: "описание"
+                    },
+                    sort: true,
+                    column_classes: "col-custom-4",
+                    row_text_alignment:  "text-left",
+                },
+            ],
+            actions: [
+            ],
+            config: {
+                pagination: true,
+                pagination_info: true,
+                num_of_visibile_pagination_buttons: 7,
+                per_page: 20,
+                checkbox_rows: false,
+                highlight_row_hover: false,
+                rows_selectable: false,
+                multi_column_sort: false,
+                // highlight_row_hover_color:"grey",
+                card_mode: false,
+                selected_rows_info: false,
+                per_page_options: [20, 60, 100, 200],
+                show_refresh_button: false,
+                show_reset_button: false,
+                global_search: {
+                    placeholder: "Глобальный поиск",
+                    visibility: false,
+                }
+            },
+            classes: {
+                table: "table-bordered table-sm table-striped"
+            },
+            validation: {
+                username: true,
+                participant_id: true,
+            },
+            form_checks: {
+                username: {
+                    type: 'check_if_filled',
+                    re: '^\\S+$',
+                    err_msg: 'Логин пользователя не может содержать пробелы',
+                },
+                participant_id: {
+                    type: 'check_if_filled',
+                    re: '^\\d+$',
+                    err_msg: 'Номер анкеты может быть только числом',
+                },
+            },
+            users: [],
+            selected_user_id: null,
+        },
+        watch: {
+            selected_user_id: function(user_obj) {
+                let self = this;
+                if (user_obj) {
+                    self.search_params.user_id = user_obj.id;
+                } else {
+                    self.search_params.user_id = null;
+                }
+            },
+        },
+        methods: {
+            checkField: function(field) {
+                let self = this;
+                checkFormFields({
+                    form_checks: self.form_checks,
+                    data_to_check: {[field]: self.search_params[field]},
+                    validation: self.validation,
+                });
+            },
+            search: function (args) {
+                let self = this;
+                let params = '';
+                if (! $.isEmptyObject(self.search_params)) {
+                    params = '?' + $.param(self.search_params);
+                }
+                self.appLoading = true;
+                getDataV2('/api/v1/administration/participant_card_actions_journal/' + params).then(data => {
+                    self.err_msg = '';
+                    self.info_msg = '';
+                    self.rows = data;
+                    self.appLoading = false;
+                }).catch(err => {
+                    self.err_msg = err.msg;
+                    self.appLoading = false;
+                });
+            },
+        },
+        components: {
+            'multiselect': VueMultiselect.Multiselect,
+        },
+        created() {
+            let self = this;
+            const loadable_fields = [
+                {'url': '/api/v1/administration/users/', 'var': 'users'},
+            ];
+
+            loadItems({'load': loadable_fields, 'self': self, 'sync': true}).then(() => {
+                self.search_params = getUrlParams();
+                self.search();
+            });
+        },
+        mounted() {
+            let self = this;
+            window.addEventListener('keyup', function(event) {
+                if (event.keyCode === 13) {
+                    self.search();
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

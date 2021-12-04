@@ -189,7 +189,7 @@ section header {
 }
 
 .app-header {
-    font-size: 1.4em;
+    font-size: 1.6em;
     font-weight: 700;
     color: #888;
     margin-bottom: 0px;
@@ -674,7 +674,7 @@ a.custom:hover {
         display: none;
     }
     .app-header {
-        font-size: 1.2rem;
+        font-size: 1.6rem;
     }
     .sidenav-header-logo {
         font-size: 1rem;
@@ -700,7 +700,7 @@ a.custom:hover {
         left: 0px;
     }
     .app-header {
-        font-size: 1rem;
+        font-size: 1.4rem;
     }
     .sidenav-header-logo {
         font-size: 1rem;

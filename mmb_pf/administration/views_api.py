@@ -10,10 +10,16 @@ from rest_framework.renderers import JSONRenderer
 from mmb_pf.common_services import get_constant_models
 from mmb_pf.drf_api import BaseModelPermissions, request_fields_parser
 
-from .models import MMBPFUsers
-from .serializers import MMBPFUserListSerializer, MMBPFUserSerializer
+from .models import MMBPFUsers, ParticipantCardActionsJournal, SystemSettings
+from .serializers import (
+    MMBPFUserListSerializer,
+    MMBPFUserSerializer,
+    ParticipantCardActionsJournalSerializer,
+)
 
 constant_models = get_constant_models()
+max_shown_journal_entries = SystemSettings.objects.get_option(name="max_shown_journal_entries", default=1000)
+
 ###############################################################################
 # DRF views
 class MMBPFUsersViewSet(
@@ -77,6 +83,37 @@ class MMBPFUsersViewSet(
 
     def permission_denied(self, request, message, code):
         raise exceptions.PermissionDenied("У вас нет прав для выполнения данного запроса")
+
+
+class ParticipantCardActionsJournalViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Actions with participants cards by users
+    """
+
+    renderer_classes = [JSONRenderer]
+    queryset = ParticipantCardActionsJournal.objects.order_by("-id")
+    serializer_class = ParticipantCardActionsJournalSerializer
+    permission_classes = [BaseModelPermissions]
+
+    def permission_denied(self, request, message):
+        raise exceptions.PermissionDenied("У вас нет прав для выполнения данного запроса")
+
+    def get_queryset(self):
+        queried_fields = {
+            "username": "str",
+            "user_id": "int",
+            "participant_id": "int",
+        }
+        query_params = request_fields_parser(request=self.request, fields=queried_fields)
+
+        if query_params:
+            queryset = self.queryset.filter(**query_params)
+        else:
+            queryset = self.queryset
+
+        queryset = queryset.all()[:max_shown_journal_entries]
+
+        return queryset
 
 
 ###############################################################################

@@ -55,6 +55,11 @@ api_custom = [
 router = routers.DefaultRouter()
 router.register(f"api/{APIVER}/administration/users", administration_views_api.MMBPFUsersViewSet)
 router.register(f"api/{APIVER}/addrbook/streets", addrbook_views_api.StreetsViewSet)
+router.register(f"api/{APIVER}/addrbook/customsignes", addrbook_views_api.CustomSignesViewSet)
+router.register(
+    f"api/{APIVER}/administration/participant_card_actions_journal",
+    administration_views_api.ParticipantCardActionsJournalViewSet,
+)
 
 urlpatterns = [
     # Main pages

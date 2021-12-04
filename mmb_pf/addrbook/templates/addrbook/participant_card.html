@@ -33,22 +33,33 @@
                     <div class="col-md-12 pr-2">
                         <div class="card mb-1">
                             <div class="card-header white">
-                                <div class="row app-header">
-                                    <div class="col-sm-12 col-md-6 col-lg-8 pl-4">
-                                        <div class="row">
-                                            -* participant.last_name *- -* participant.first_name *- -* participant.patronymic *-
-                                        </div>
+                                <div class="row app-header justify-content-between">
+                                    <div class="my-auto ml-3">
+                                        -* participant.last_name *- -* participant.first_name *- -* participant.patronymic *-
+                                    </div>
+                                    <div class="mr-1">
+                                        <a class="btn btn-sm btn-outline-info" :href="window.location.href + 'edit'">
+                                            <span v-if="participant.street">Редактировать <i class="fas fa-user-edit"></i></span>
+                                            <span v-else>Регистрация <i class="fas fa-house-user"></i></span>
+                                        </a>
                                     </div>
                                 </div>
                                 <!-- <div class="row justify-content-end app-header">
 
                                 </div> -->
                             </div>
-                            <div class="card-body py-1">
+                            <!-- <div class="card-body py-1">
 
-                            </div>
-                            <!-- <div class="card-footer form-horizontal">
                             </div> -->
+                            <div class="card-footer form-horizontal p-0">
+                                <div class="row justify-content-end pr-4">
+                                    <a v-if="history === 'True'"
+                                        :href="'/administration/participant_card_actions_journal/?participant_id='+ participant_id"
+                                        class="btn btn-sm blue-grey">
+                                        <span class="text-white"><i class="fas fa-history"></i> История</span>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                         <!-- form header end -->
                         <!-- Form card -->
@@ -77,19 +88,19 @@
                                     <div class="form-group row mb-2">
                                         <label class="col-sm-3 my-auto text-bold text-gray">Улица</label>
                                         <div class="col-sm-9 my-auto">
-                                            -*participant.street.name*- -*participant.sign.name*-
+                                            -*participant.street.name*- <span v-if="participant.sign">-*participant.sign.name*-</span>
+                                        </div>
+                                    </div>
+                                    <div v-if="participant.user_desc" class="form-group row mb-2">
+                                        <label class="col-sm-3 my-auto text-bold text-gray">Описание</label>
+                                        <div class="col-sm-9 my-0">
+                                            <span class="my-0" v-html="participant.user_desc"></span>
                                         </div>
                                     </div>
                                     <div v-if="participant.custom_sign"  class="form-group row mb-2">
                                         <label class="col-sm-3 my-auto text-bold text-gray">Указатель</label>
                                         <div class="col-sm-9 my-auto">
                                             -*participant.custom_sign.name*-
-                                        </div>
-                                    </div>
-                                    <div class="form-group row mb-2">
-                                        <label class="col-sm-3 my-auto text-bold text-gray">Описание</label>
-                                        <div class="col-sm-9 my-0">
-                                            <span class="my-0" v-html="participant.user_desc"></span>
                                         </div>
                                     </div>
                                 </div>
