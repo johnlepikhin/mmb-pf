@@ -470,32 +470,6 @@ function loadItems(args) {
     });
 }
 
-/*
-    IMAGE PROCESSING
-*/
-// Used for return some default image src or custom if defined
-// TAKE: {
-//  mediaimg: user_photo.jpg,               // any image from media directory
-//  default: 'some type from common images',   // some default image from dictionary
-//  custom: blob/url, // returned if defined
-// }
-
-// RETURN:
-// image url
-function getImageUrl(obj) {
-    const commonImages = {
-        user_photo: '/media/user_photo.jpg',
-    };
-
-    if (obj['custom']) {
-        return obj['custom'];
-    } else if (obj['default']) {
-        return commonImages[obj['default']];
-    } else if (obj['mediaimg']) {
-        return '/media/' + obj['mediaimg'];
-    }
-}
-
 /******************************************************************************
                                 CLASS CHANGERS
 ******************************************************************************/

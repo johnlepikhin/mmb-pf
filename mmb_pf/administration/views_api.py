@@ -19,7 +19,6 @@ from .serializers import (
 
 constant_models = get_constant_models()
 max_shown_journal_entries = SystemSettings.objects.get_option(name="max_shown_journal_entries", default=1000)
-
 ###############################################################################
 # DRF views
 class MMBPFUsersViewSet(
@@ -118,7 +117,7 @@ class ParticipantCardActionsJournalViewSet(viewsets.ReadOnlyModelViewSet):
 
 ###############################################################################
 # Custom views
-@permission_required("administration.change_my_password", raise_exception=True)
+@permission_required("administration.change_self_password", raise_exception=True)
 def change_my_password(request):
     """
     Current user password changer

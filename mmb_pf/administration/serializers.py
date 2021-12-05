@@ -1,3 +1,6 @@
+import json
+from collections import OrderedDict
+
 from rest_framework import exceptions, serializers
 
 from addrbook.serializers import (
@@ -5,27 +8,41 @@ from addrbook.serializers import (
     StreetSignesSerializer,
     StreetsSerializer,
 )
-from administration.models import ParticipantCardActionsJournal
+from administration.models import ImageStorage, ParticipantCardActionsJournal
 from mmb_pf.common_serializers import (
     DateSerializer,
     DateTimeSecSerializer,
     DateTimeSerializer,
     GenderSerializer,
-    ImagesSerializer,
     LFPSerializer,
     LFPShortSerializer,
 )
 from mmb_pf.common_services import get_timezone
 
-from .models import MMBPFUsers, ParticipantCardActionsJournal
+from .models import (
+    ImageStorage,
+    MMBPFUsers,
+    ParticipantCardActionsJournal,
+    SystemSettings,
+)
 
 timezone = get_timezone()
 lfps = LFPSerializer()
+max_images_per_user = SystemSettings.objects.get_option(name="max_images_per_user", default=5)
+
+
+class ImageStorageSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
+    href = serializers.CharField(source="file.url")
+
+    class Meta:
+        model = ImageStorage
+        exclude = ["app_name", "file"]
 
 
 class MMBPFUserSerializer(serializers.ModelSerializer):
     modification_date = DateTimeSecSerializer()
-    images = ImagesSerializer(read_only=True)
+    images = ImageStorageSerializer(required=False, allow_null=True, many=True)
     date_joined = DateTimeSerializer(read_only=True)
     gender = GenderSerializer()
     birth = DateSerializer(allow_null=True)
@@ -33,7 +50,6 @@ class MMBPFUserSerializer(serializers.ModelSerializer):
     street = StreetsSerializer(required=True, allow_null=False)
     sign = StreetSignesSerializer(required=True, allow_null=False)
     custom_sign = CustomSignesSerializer(required=False, allow_null=True)
-    # user_ranks = serializers.PrimaryKeyRelatedField(many=True, queryset=ESSUserRanks.objects.all())
 
     class Meta:
         model = MMBPFUsers
@@ -64,14 +80,34 @@ class MMBPFUserSerializer(serializers.ModelSerializer):
         )
         depth = 1
 
-    # def to_internal_value(self, data):
-    #     # catch password from request and store it to internal value
-    #     # because i dont send it, and drf decline unknown field by default
-    #     internal_value = super(ESSUserSerializer, self).to_internal_value(data)
-    #     password = data.get("password")
-    #     if password:
-    #         internal_value.update({"password": password})
-    #     return internal_value
+    def to_internal_value(self, data):
+        # data sends by form type, so we have to catch all things right
+        internal_value = super(MMBPFUserSerializer, self).to_internal_value(json.loads(data.get("jsondata")))
+        if (max_images_per_user + 1) < (len(data) + len(internal_value["images"])):
+            raise exceptions.ValidationError(
+                {"Максимально допустимое количество изображений для участника:": max_images_per_user}
+            )
+
+        for datakey, dataobj in data.items():
+            if datakey == "jsondata":
+                continue
+
+            img_obj = ImageStorage.objects.create(
+                file=dataobj,
+                app_name="uploaded_from_api",
+                desc="картинка для пользователя",
+            )
+            internal_value["images"].append(
+                OrderedDict(
+                    [
+                        ("id", img_obj.id),
+                        ("file", {"url": img_obj.file.url}),
+                        ("desc", img_obj.desc),
+                    ]
+                )
+            )
+
+        return internal_value
 
     def update(self, instance, validated_data):
         # Before object.save
@@ -88,31 +124,25 @@ class MMBPFUserSerializer(serializers.ModelSerializer):
                     + "обновите форму и введите их заново"
                 )
         else:
-            raise exceptions.ValidationError(f"Поле 'modification_date' является обязательным")
+            raise exceptions.ValidationError("Поле 'modification_date' является обязательным")
 
         changed_data = []
-
-        # if instance.is_active and not validated_data["is_active"]:
-        #     changed_data.append("Блокировка аккаунта")
-        # elif not instance.is_active and validated_data["is_active"]:
-        #     changed_data.append("Разблокировка аккаунта")
-
-        # if [ur for ur in instance.user_ranks.all()] != validated_data["user_ranks"]:
-        #     user_rank_changed = True
-        #     changed_data.append(f"Изменение рангов: {'; '.join(obj.name for obj in validated_data['user_ranks'])}")
-
-        skipped_fileds = [
-            "images",
-        ]
         for attr, value in validated_data.items():
-            if attr in skipped_fileds:
-                continue
-
             if attr != "modification_date" and value != getattr(instance, attr):
                 changed_data.append(f"Изменение {attr}: {value}")
 
-            if attr == "user_ranks":
-                instance.user_ranks.set(validated_data["user_ranks"])
+            if attr == "images":
+                will_removed_ids = []
+                stay_images_ids = [obj["id"] for obj in validated_data["images"]]
+                for old_img_id in instance.images.all().values_list("id", flat=True):
+                    if old_img_id not in stay_images_ids:
+                        will_removed_ids.append(old_img_id)
+
+                instance.images.set(stay_images_ids)
+                if SystemSettings.objects.get_option(name="delete_user_img_from_disk", default=True):
+                    for img_id in will_removed_ids:
+                        ImageStorage.objects.get(id=img_id).delete()
+
             else:
                 setattr(instance, attr, value)
 

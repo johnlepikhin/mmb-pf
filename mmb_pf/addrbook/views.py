@@ -1,6 +1,8 @@
 # from django.contrib.auth.decorators import permission_required
 from django.shortcuts import render
 
+from administration.models import SystemSettings
+
 
 # @permission_required("addrbook.view_addrbook", raise_exception=True)
 def addrbook_list(request):
@@ -39,5 +41,6 @@ def participant_card_edit(request, participant_id):
         "addrbook/participant_card_edit.html",
         {
             "participant_id": participant_id,
+            "max_images_per_user": SystemSettings.objects.get_option(name="max_images_per_user", default=5),
         },
     )

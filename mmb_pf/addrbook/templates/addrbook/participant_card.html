@@ -37,7 +37,7 @@
                                     <div class="my-auto ml-3">
                                         -* participant.last_name *- -* participant.first_name *- -* participant.patronymic *-
                                     </div>
-                                    <div class="mr-1">
+                                    <div class="mr-1 ml-2">
                                         <a class="btn btn-sm btn-outline-info" :href="window.location.href + 'edit'">
                                             <span v-if="participant.street">Редактировать <i class="fas fa-user-edit"></i></span>
                                             <span v-else>Регистрация <i class="fas fa-house-user"></i></span>
@@ -143,7 +143,7 @@
             history: "{{ history }}",
             err_msg: '',
             info_msg: '',
-            response: '', // response good answ
+            response_success: '', // response good answ
             response_warn: '', // response bad answ
             participant: {
             },

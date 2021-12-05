@@ -63,7 +63,7 @@
                         <!-- form header end -->
                         <!-- Form card -->
                         <div class="card my-2">
-                            <div class="card-body form-horizontal" :id="'id_form_block_' + ++cnt_id_init_template">
+                            <div class="card-body form-horizontal">
                                 <div class="form-group row mb-2">
                                     <label class="col-sm-3 my-auto text-bold text-gray">ФИО</label>
                                     <div class="col-sm-9 my-auto">
@@ -83,91 +83,116 @@
                                     </div>
                                 </div>
                                 <div class="line"></div>
-                                <div>
-                                    <div class="form-group row mb-2">
-                                        <label class="col-sm-3 my-auto text-bold text-gray">Улица</label>
-                                        <div class="col-sm-7 my-auto">
-                                            <multiselect
-                                                v-model="participant.street"
-                                                :options=streets
-                                                :custom-label="obj => obj.name"
-                                                option-height="30"
-                                                placeholder="Выберите один из вариантов"
-                                                deselect-label="Нажмите для удаления"
-                                                select-label="Нажмите для выбора"
-                                                selected-label="Выбрано"
-                                                track-by="id"
-                                                :class="divBorderClass({classes: [], valid: validation.street})">
-                                                <div slot="noResult">Ничего не найдено</div>
-                                            </multiselect>
-                                            <div class="invalid-feedback align-right">
-                                                -* form_checks.street.err_msg *-
-                                            </div>
+                                <div class="form-group row mb-2">
+                                    <label class="col-sm-3 my-auto text-bold text-gray">Улица</label>
+                                    <div class="col-sm-7 my-auto">
+                                        <multiselect
+                                            v-model="participant.street"
+                                            :options=streets
+                                            :custom-label="obj => obj.name"
+                                            option-height="30"
+                                            placeholder="Выберите один из вариантов"
+                                            deselect-label="Нажмите для удаления"
+                                            select-label="Нажмите для выбора"
+                                            selected-label="Выбрано"
+                                            track-by="id"
+                                            :class="divBorderClass({classes: [], valid: validation.street})">
+                                            <div slot="noResult">Ничего не найдено</div>
+                                        </multiselect>
+                                        <div class="invalid-feedback align-right">
+                                            -* form_checks.street.err_msg *-
                                         </div>
                                     </div>
-                                    <div class="form-group row mb-2">
-                                        <label class="col-sm-3 my-auto text-bold text-gray">Указатель</label>
-                                        <div class="col-sm-7 my-auto">
-                                            <multiselect
-                                                v-model="participant.sign"
-                                                :options="participant.street ? participant.street.signes : []"
-                                                :custom-label="obj => obj.name"
-                                                option-height="30"
-                                                placeholder="Выберите один из вариантов"
-                                                deselect-label="Нажмите для удаления"
-                                                select-label="Нажмите для выбора"
-                                                selected-label="Выбрано"
-                                                track-by="id"
-                                                :class="divBorderClass({classes: [], valid: validation.sign})"
-                                                :disabled="! participant.street">
-                                                <div slot="noResult">Ничего не найдено</div>
-                                            </multiselect>
-                                            <div class="invalid-feedback align-right">
-                                                -* form_checks.sign.err_msg *-
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group row mb-2">
-                                        <label class="col-sm-3 my-auto text-bold text-gray">Описание</label>
-                                        <div class="col-sm-7 my-auto">
-                                            <ckeditor
-                                                :editor="editor"
-                                                v-model="participant.user_desc"
-                                                :config="editorConfig">
-                                            </ckeditor>
-                                        </div>
-                                    </div>
-                                    <div class="form-group row mb-2">
-                                        <label class="col-sm-3 my-auto text-bold text-gray">Индивидуальный Указатель</label>
-                                        <div class="col-sm-7 my-auto">
-                                            <multiselect
-                                                v-model="participant.custom_sign"
-                                                :options="customsignes"
-                                                :custom-label="obj => obj.name"
-                                                option-height="30"
-                                                placeholder="Выберите один из вариантов"
-                                                deselect-label="Нажмите для удаления"
-                                                select-label="Нажмите для выбора"
-                                                selected-label="Выбрано"
-                                                track-by="id"
-                                                :disabled="! participant.street">
-                                                <div slot="noResult">Ничего не найдено</div>
-                                            </multiselect>
-                                        </div>
-                                    </div>
-                                    <!-- <div v-if="participant.custom_sign" class="form-group row mb-2">
-                                        <label class="col-sm-3 my-auto text-bold text-gray">Индивидуальный Указатель</label>
-                                        <div class="col-sm-9 my-auto">
-                                            -*participant.custom_sign.name*-
-                                        </div>
-                                    </div> -->
                                 </div>
-                                <div v-if="participant.images.length" class="line" :id="'id_form_block_' + ++cnt_id_init_template"></div>
-                                <div v-if="participant.images.length" class="form-group row d-flex justify-content-center mb-2">
-                                    <div class="col-sm-12" style="max-width: 600px;">
-                                        <ess-gallery
-                                            :images="participant.images"
-                                        ></ess-gallery>
+                                <div class="form-group row mb-2">
+                                    <label class="col-sm-3 my-auto text-bold text-gray">Указатель</label>
+                                    <div class="col-sm-7 my-auto">
+                                        <multiselect
+                                            v-model="participant.sign"
+                                            :options="participant.street ? participant.street.signes : []"
+                                            :custom-label="obj => obj.name"
+                                            option-height="30"
+                                            placeholder="Выберите один из вариантов"
+                                            deselect-label="Нажмите для удаления"
+                                            select-label="Нажмите для выбора"
+                                            selected-label="Выбрано"
+                                            track-by="id"
+                                            :class="divBorderClass({classes: [], valid: validation.sign})"
+                                            :disabled="! participant.street">
+                                            <div slot="noResult">Ничего не найдено</div>
+                                        </multiselect>
+                                        <div class="invalid-feedback align-right">
+                                            -* form_checks.sign.err_msg *-
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group row mb-2">
+                                    <label class="col-sm-3 my-auto text-bold text-gray">Описание</label>
+                                    <div class="col-sm-7 my-auto">
+                                        <ckeditor
+                                            :editor="editor"
+                                            v-model="participant.user_desc"
+                                            :config="editorConfig">
+                                        </ckeditor>
+                                    </div>
+                                </div>
+                                <div class="form-group row mb-2">
+                                    <label class="col-sm-3 my-auto text-bold text-gray">Индивидуальный Указатель</label>
+                                    <div class="col-sm-7 my-auto">
+                                        <multiselect
+                                            v-model="participant.custom_sign"
+                                            :options="customsignes"
+                                            :custom-label="obj => obj.name"
+                                            option-height="30"
+                                            placeholder="Выберите один из вариантов"
+                                            deselect-label="Нажмите для удаления"
+                                            select-label="Нажмите для выбора"
+                                            selected-label="Выбрано"
+                                            track-by="id"
+                                            :disabled="! participant.street">
+                                            <div slot="noResult">Ничего не найдено</div>
+                                        </multiselect>
+                                    </div>
+                                </div>
+                                <div class="line"></div>
+                                <div class="form-group row mb-2">
+                                    <div class="col-sm-3 my-auto">
+                                        <label class="text-bold text-gray">
+                                            Фото -* participant.images.length + new_images.length *-
+                                            -* ! participant.images.length ? "не загружены" : "" *-
+                                        </label>
+                                        <button
+                                            :disabled="participant.images.length + new_images.length >= max_images_per_user"
+                                            type="button"
+                                            class="btn btn-outline-default btn-sm waves-effect"
+                                            @click="userphoto.click()">
+                                            <i class="fas fa-plus fa-2x"></i>
+                                        </button>
+                                        <input type="file" multiple="multiple" id="userphoto" name="file1" style="display:none" @change="reg_image"/>
+                                    </div>
+                                    <div class="col-sm-7 my-auto">
+                                        <div v-if="new_images.length" v-for="(image, index) in new_images" >
+                                            <div class="card card-image" :style="'background-size: cover; background-image: url(' + image.b64 + ');'">
+                                                <div class="text-white text-right px-3 py-3" style="height: 300px; max-width: 100%">
+                                                    <i
+                                                        class="far fa-minus-square fa-2x"
+                                                        @click="unreg_image({'idx': index, 'new': true})"
+                                                        :disabled="! new_images.length">
+                                                    </i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div v-if="participant.images.length" v-for="(image, index) in participant.images" >
+                                            <div class="card card-image" :style="'background-size: cover; background-image: url(' + image.href + ');'">
+                                                <div class="text-white text-right px-3 py-3" style="height: 300px; max-width: 100%">
+                                                    <i
+                                                        class="far fa-minus-square fa-2x"
+                                                        @click="unreg_image({'idx': index, 'new': false})"
+                                                        :disabled="! participant.images.length">
+                                                    </i>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="line"></div>
@@ -176,7 +201,6 @@
                                         <span class="text-small text-gray mx-0"><i class="far fa-clock"></i> Версия от -*participant.modification_date*-</span>
                                     </div>
                                 </div>
-                                <div class="line" :id="cnt_id_init_template = 0"></div> <!-- last line should reset counter -->
                             </div>
                         </div>
                     </div>
@@ -187,20 +211,19 @@
     {% include "footer.html" %}
 </div>
 <script>
-    let cnt_id_init = 0;
-    let cnt_id_init_template = 0;
     let participant_card_edit = new Vue({
         el: '#participant_card_edit',
         delimiters: ['-*', '*-'],
         data: {
             appLoading: true,
             participant_id: Number("{{ participant_id }}"),
-            history: "{{ history }}",
+            max_images_per_user: Number("{{ max_images_per_user }}"),
             err_msg: '',
             info_msg: '',
-            response: '', // response good answ
+            response_success: '', // response good answ
             response_warn: '', // response bad answ
             participant: {},
+            new_images: [],
             participant_changed: false,
             streets: [],
             customsignes: [],
@@ -253,6 +276,49 @@
             },
         },
         methods: {
+            unreg_image: function(args) {
+                let self = this;
+                if (args.new) { // new added images
+                    self.new_images.splice(args.idx, 1);
+                } else {
+                    self.participant.images.splice(args.idx, 1);
+                }
+                self.participant_changed = true;
+            },
+            reg_image: function(event) {
+                let self = this;
+                Array.from(event.target.files).forEach(function(file_obj, i, arr) {
+                    if (i >= self.max_images_per_user)
+                        return;
+                    loadImage.parseMetaData(file_obj, function(data) {
+                        let orientation = 0;
+                        if (data.exif) {
+                            orientation = data.exif.get('Orientation');
+                        }
+                        let loadingImage = loadImage(file_obj, function(canvas) {
+                            try {
+                                canvas.toBlob(function(blob) {
+                                    self.new_images.push({
+                                        // it is for sending to server
+                                        'blob': blob,
+                                        // it is for draw in the template
+                                        'b64': canvas.toDataURL('image/jpeg'),
+                                    });
+                                },'image/jpeg');
+                            } catch {
+                                self.response_warn = "Не удалось обработать изображение";
+                                modal_show({id: '#modalResponseWarn'});
+                            }
+                        },
+                        {
+                            canvas: true,
+                            orientation: orientation,
+                            maxWidth: 1920,
+                        });
+                    });
+                });
+                self.participant_changed = true;
+            },
             sendForm: function(formid) {
                 let self = this;
                 let all_valid = checkFormFields({
@@ -262,20 +328,20 @@
                 });
 
                 if (all_valid) {
-                    let participant_prepared = {};
-
-                    Object.entries(self.participant).forEach(([key,value])=>{
-                        if ((key === "images") || (key === "images_blob")) {
-                            return;
-                        }
-                        participant_prepared[key] = value;
+                    let files = [];
+                    self.new_images.forEach(function(obj, i, arr) {
+                        files.push({
+                            key: "participant_img_"+i,
+                            obj: obj.blob,
+                        });
                     });
                     sendDataV2({
-                        type: 'json',
+                        // type: 'json',
+                        type: 'form',
                         method: 'PATCH',
                         url: '/api/v1/administration/users/' + formid + '/',
-                        jsondata: participant_prepared,
-                        // files: files,
+                        jsondata: self.participant,
+                        files: files,
                     }).then(data => {
                         self.response_warn = '';
                         self.participant = data;

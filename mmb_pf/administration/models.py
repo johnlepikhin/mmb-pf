@@ -370,7 +370,6 @@ class MMBPFUsers(AbstractUser):
         CustomSignes, blank=True, null=True, on_delete=models.SET_NULL, help_text="Индивидуальный указатель"
     )
     images = models.ManyToManyField(ImageStorage, blank=True, related_name="user_images")
-    # files = models.ManyToManyField(FilePrivateStorage, blank=True, related_name="user_files")
 
     user_desc = models.TextField(
         default="",
