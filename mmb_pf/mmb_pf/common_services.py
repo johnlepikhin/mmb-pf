@@ -47,7 +47,7 @@ def get_constant_models():
                 (administration_id, "Организатор"),
                 (participant_id, "Участник"),
             ),
-            # ! IMPORTANT ! With this value new users created
+            # ! IMPORTANT ! With this value new users created and removed by cleanup
             "default": participant_id,
         },
     }

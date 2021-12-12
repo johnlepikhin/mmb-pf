@@ -49,6 +49,7 @@ api_custom = [
         administration_views_api.change_my_password,
         name="administraion_change_my_password",
     ),
+    path(f"api/{APIVER}/administration/cleanup_db/", administration_views_api.cleanup_db, name="cleanup_db"),
 ]
 
 # API DRF

@@ -7,10 +7,16 @@ from django.http import JsonResponse
 from rest_framework import exceptions, mixins, viewsets
 from rest_framework.renderers import JSONRenderer
 
+from addrbook.models import Teams
 from mmb_pf.common_services import get_constant_models
 from mmb_pf.drf_api import BaseModelPermissions, request_fields_parser
 
-from .models import MMBPFUsers, ParticipantCardActionsJournal, SystemSettings
+from .models import (
+    ImageStorage,
+    MMBPFUsers,
+    ParticipantCardActionsJournal,
+    SystemSettings,
+)
 from .serializers import (
     MMBPFUserListSerializer,
     MMBPFUserSerializer,
@@ -117,11 +123,25 @@ class ParticipantCardActionsJournalViewSet(viewsets.ReadOnlyModelViewSet):
 
 ###############################################################################
 # Custom views
+@permission_required("administration.can_cleanup_db", raise_exception=True)
+def cleanup_db(request):
+    """
+    Remove teams and participants from db
+    """
+    if request.method != "GET":
+        return JsonResponse({"msg": "Некорректный метод запроса, только GET"}, status=405, safe=False)
+
+    MMBPFUsers.objects.filter(user_type=constant_models["USER_TYPE"]["default"]).delete()
+    Teams.objects.all().delete()
+    ImageStorage.objects.all().delete()
+
+    return JsonResponse({"msg": "База очищена"}, status=200, safe=False)
+
+
 @permission_required("administration.change_self_password", raise_exception=True)
 def change_my_password(request):
     """
     Current user password changer
-
     """
     if request.method != "POST":
         return JsonResponse({"msg": "Некорректный метод запроса, только POST"}, status=405, safe=False)

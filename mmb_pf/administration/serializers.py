@@ -95,7 +95,7 @@ class MMBPFUserSerializer(serializers.ModelSerializer):
             img_obj = ImageStorage.objects.create(
                 file=dataobj,
                 app_name="uploaded_from_api",
-                desc="картинка для пользователя",
+                desc="",
             )
             internal_value["images"].append(
                 OrderedDict(

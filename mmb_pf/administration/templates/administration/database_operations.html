@@ -7,7 +7,43 @@
 {% block body %}
 <div class="page">
     {% include "header.html" %}
-    <div id="main_page" class="mt-1 p-2">
+    <div id="database_operations" class="mt-1 p-2">
+        {% include "modals.html" %}
+        <div id="cleanup_db_modal"
+            class="modal fade show"
+            tabindex="-1"
+            role="dialog"
+            data-backdrop="static"
+            data-keyboard="false">
+            <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-info">
+                    <h5 class="modal-title w-100 text-white">Будут удалены следующие данные</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                    </div>
+                    <div class="modal-body">
+                        <span class="text-black-50 text-bold">Изменения по ролям</span>
+                        <ul class="list-group text-left">
+                            <li class="list-group-item text-small text-black-50">
+                                <span class="mr-1">Все пользователи системы с типом "Участник"</span>
+                            </li>
+                            <li class="list-group-item text-small text-black-50">
+                                <span class="mr-1">Все команды</span>
+                            </li>
+                            <li class="list-group-item text-small text-black-50">
+                                <span class="mr-1">Все фотографии пользователей, включая карту пф</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-center">
+                        <a type="button" class="btn btn-sm btn-danger waves-effect" data-dismiss="modal" @click="cleanup_db()">Применить</a>
+                        <a type="button" class="btn btn-sm btn-info waves-effect" data-dismiss="modal">Отказаться</a>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="row">
             <div class="col-12">
                 <div class="card mb-1">
@@ -35,13 +71,22 @@
                         <b>Ошибка!</b> -* err_msg *-
                     </div>
                 </div>
-                <div v-else-if="info_msg" class="pt-2 px-2">
-                    <div class="alert alert-info">
-                        <b>Информация!</b> -* info_msg *-
-                    </div>
-                </div>
                 <div v-else>
                     <div v-if="main_status.disk" class="card mb-1 mt-1">
+                        <div class="card mb-1 mt-1">
+                            <div class="card-header white">
+                                <div class="row d-flex justify-content-start my-auto">
+                                    <span class="my-auto ml-3 text-gray text-bold">Очистка базы данных</span>
+                                </div>
+                            </div>
+                            <div class="card-body py-1">
+                                <div class="row">
+                                    <div class="col-12 my-auto">
+                                        <button class="btn btn-sm btn-outline-yellow" @click="$('#cleanup_db_modal').modal('show');">Очистить</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="card-header white">
                             <div class="row d-flex justify-content-start my-auto">
                                 <div class="col-12">
@@ -91,19 +136,32 @@
     {% include "footer.html" %}
 </div>
 <script>
-    let main_page = new Vue({
-        el: '#main_page',
+    let database_operations = new Vue({
+        el: '#database_operations',
         delimiters: ['-*', '*-'],
         data: function () {
             return {
                 appLoading: true,
                 err_msg: '',
-                info_msg: '',
+                response_success: '',
+                response_warn: '',
                 main_status: {},
             }
         },
         methods: {
-
+            cleanup_db: function (args) {
+                let self = this;
+                getDataV2('/api/v1/administration/cleanup_db/').then(data => {
+                    self.err_msg = '';
+                    self.response_warn = '';
+                    self.response_success = data.msg;
+                    modal_show({id: '#modalResponseSuccess', timeout: 1500});
+                }).catch(err => {
+                    self.response_success = '';
+                    self.response_warn = err.msg;
+                    modal_show({id: '#modalResponseWarn'});
+                });
+            },
         },
         created() {
             let self = this;
