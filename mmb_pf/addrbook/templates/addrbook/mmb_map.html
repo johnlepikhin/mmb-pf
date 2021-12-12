@@ -100,7 +100,7 @@
                             try {
                                 canvas.toBlob(function(blob) {resolve(blob)},'image/jpeg');
                             } catch {
-                                elf.response_info = "";
+                                self.response_info = "";
                                 self.response_warn = "Не удалось обработать изображение";
                                 modal_show({id: '#modalResponseWarn'});
                                 reject();
