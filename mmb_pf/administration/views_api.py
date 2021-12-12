@@ -134,6 +134,7 @@ def cleanup_db(request):
     MMBPFUsers.objects.filter(user_type=constant_models["USER_TYPE"]["default"]).delete()
     Teams.objects.all().delete()
     ImageStorage.objects.all().delete()
+    ParticipantCardActionsJournal.objects.all().delete()
 
     return JsonResponse({"msg": "База очищена"}, status=200, safe=False)
 
