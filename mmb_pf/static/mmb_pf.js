@@ -364,24 +364,24 @@ function responseResolver(response, args = {}) {
                 });
         } else {
             response.text()
-                .then((text_data) => {
-                    try {
-                        return JSON.parse(text_data);
-                    } catch (err) {
-                        return text_data;
+            .then((text_data) => {
+                try {
+                    return JSON.parse(text_data);
+                } catch (err) {
+                    return text_data;
+                }
+            })
+            .then((result) => {
+                if (!args.no_modify_response) {
+                    if (!result) {
+                        result = { 'msg': response.status + ' ' + response.statusText };
                     }
-                })
-                .then((result) => {
-                    if (!args.no_modify_response) {
-                        if (!result) {
-                            result = { 'msg': response.status + ' ' + response.statusText };
-                        }
-                        if (typeof result === "string" && !(args.ok_string_err)) {
-                            result = { 'msg': response.status + ' ' + response.statusText };
-                        }
+                    if (typeof result === "string" && !(args.ok_string_err)) {
+                        result = { 'msg': response.status + ' ' + response.statusText };
                     }
-                    resolve(result);
-                });
+                }
+                resolve(result);
+            });
         }
     });
 }

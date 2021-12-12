@@ -27,7 +27,9 @@ def mmb_map(request):
     return render(
         request,
         "addrbook/mmb_map.html",
-        {},
+        {
+            "can_change_map": request.user.has_perm("administration.can_change_map"),
+        },
     )
 
 

@@ -51,6 +51,7 @@ api_custom = [
     ),
     path(f"api/{APIVER}/administration/cleanup_db/", administration_views_api.cleanup_db, name="cleanup_db"),
     path(f"api/{APIVER}/addrbook/mmb_map/", addrbook_views_api.mmb_map, name="mmb_map"),
+    path(f"api/{APIVER}/addrbook/change_mmb_map/", addrbook_views_api.change_mmb_map, name="change_mmb_map"),
 ]
 
 # API DRF

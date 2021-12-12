@@ -20,7 +20,7 @@
                             <span class="app-header">Карта промфиниша</span>
                         </div>
                     </div>
-                    <div class="card-body p-1">
+                    <div v-if="can_change_map === 'True'" class="card-body p-1">
                         <p class="text-small text-gray my-0 ml-4">
                             <i class="fas fa-info-circle"></i> При добавлении новой карты - старая будет удалена автоматически
                         </p>
@@ -39,39 +39,22 @@
                     </div>
                 </div>
                 <div v-else class="card mt-0">
-                    <div class="card-header white">
+                    <div v-if="can_change_map === 'True'" class="card-header white">
                         <div class="row d-flex justify-content-end">
-                            <button class="btn btn-sm btn-default" @click="change_announce({add: true})" :disabled="! map_file.data_url">
-                                <span class="text-white"><i class="far fa-save"></i> Сохранить анонс</span>
+                            <button class="btn btn-sm btn-danger" @click="del_map()" :disabled="! map_file.id">
+                                <span class="text-white"><i class="fas fa-snowplow"></i> Удалить Карту</span>
                             </button>
-                            <button class="btn btn-sm btn-danger" @click="change_announce({add: false})" :disabled="! map_file.img_id">
-                                <span class="text-white"><i class="fas fa-snowplow"></i> Удалить анонс</span>
+                            <button class="btn btn-sm btn-default" @click="mmb_new_map.click()">
+                                <span class="text-white"><i class="far fa-save"></i> Обновить карту</span>
                             </button>
+                            <input type="file" id="mmb_new_map" name="mmb_new_map" style="display:none" @change="register_map"/>
                         </div>
                     </div>
-                    <div class="card-body text-center">
-                        <table class="table table-sm table-borderless">
-                            <tbody>
-                                <tr>
-                                    <td class="col-custom-2">
-                                        <button class="btn btn-md btn-outline-info waves-effect z-depth-0 my-0" @click="map_file_input.click()">Загрузить картинку</button>
-                                        <input type="file" id="map_file_input" name="file1" style="display:none" @change="register_announce"/>
-                                    </td>
-                                    <td class="col-custom-1 align-middle">
-                                        <span class="text-bold text-gray">Описание</span>
-                                    </td>
-                                    <td class="col-custom-5">
-                                        <input
-                                            type="text"
-                                            class="w-100 rounded form-control"
-                                            placeholder="Описание анонса, необязательно"
-                                            v-model.trim="map_file.desc">
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="card-body text-center p-1">
                         <div class="form-group row d-flex justify-content-center my-2">
-                            <img v-if="map_file.data_url" :src="map_file.data_url" class="img-fluid" alt="user_photo.jpg">
+                            <a v-if="map_file.href" :href="map_file.href">
+                                <img :src="map_file.href" class="img-fluid" alt="mmb_map.jpg">
+                            </a>
                             <span v-else class="h3 text-black-50 m-5">Карта не загружена</span>
                         </div>
                     </div>
@@ -90,117 +73,91 @@
         delimiters: ['-*', '*-'],
         data: {
             appLoading: true,
+            can_change_map: "{{ can_change_map }}",
             response_success: '',
             response_warn: '',
+            response_info: '',
             err_msg: '',
             map_file: {
-                img_id: 0,
-                blob: '',
-                data_url: '',
+                href: '',
+                id: '',
                 desc: '',
             },
+            new_map_file: null,
         },
         methods: {
-            register_announce: function(event) {
+            register_map: function(event) {
                 let self = this;
-                loadImage.parseMetaData(event.target.files[0], function(data) {
-                    let orientation = 0;
-                    if (data.exif) {
-                        orientation = data.exif.get('Orientation');
-                    }
-                    let loadingImage = loadImage(
-                        event.target.files[0],
-                        function(canvas) {
-                            self.map_file.data_url = canvas.toDataURL('image/jpeg');
-                            canvas.toBlob(function(blob) {
-                                self.map_file.blob = blob;
-                            },'image/jpeg');
-                        }, {
+                self.response_info = "Загружаем новую карту";
+                modal_show({id: '#modalResponseInfo'});
+                load_image = new Promise((resolve, reject) => {
+                    loadImage.parseMetaData(event.target.files[0], function(data) {
+                        let orientation = 0;
+                        if (data.exif) {
+                            orientation = data.exif.get('Orientation');
+                        }
+                        let loadingImage = loadImage(event.target.files[0], function(canvas) {
+                            try {
+                                canvas.toBlob(function(blob) {resolve(blob)},'image/jpeg');
+                            } catch {
+                                elf.response_info = "";
+                                self.response_warn = "Не удалось обработать изображение";
+                                modal_show({id: '#modalResponseWarn'});
+                                reject();
+                            }
+                        },
+                        {
                             canvas: true,
                             orientation: orientation,
-                            maxWidth: 1920,
-                        }
-                    );
+                        });
+                    });
+                });
+                load_image.then(data => {
+                    return [{
+                        key: "new_map_file",
+                        obj: data,
+                    }];
+                }).then(data => {
+                    sendDataV2({
+                        type: 'form',
+                        method: 'POST',
+                        url: '/api/v1/addrbook/change_mmb_map/',
+                        jsondata: {},
+                        files: data,
+                    }).then(data => {
+                        self.response_info = ""
+                        self.response_warn = "";
+                        self.response_success = data.msg;
+                        modal_show({id: '#modalResponseSuccess', timeout: 1000});
+                        self.get_map();
+                    }).catch(err => {
+                        self.response_info = ""
+                        self.response_warn = err.msg;
+                        modal_show({id: '#modalResponseWarn'});
+                    });
                 });
             },
-            change_announce: function (args) {
+            del_map: function (args) {
                 let self = this;
-                if (args.add) {
-                    // local copy due delete operation erase global
-                    let map_file = {};
-                    Object.entries(self.map_file).forEach(([key, value]) => {
-                        map_file[key] = value;
-                    });
-
-                    let mode = 'add';
-                    let desc = {'map_file': map_file.desc};
-                    let file_ids = [];
-                    let files = [{
-                        key: "map_file",
-                        obj: map_file.blob,
-                    }];
-
-                    if (map_file.img_id) {
-                        if (map_file.blob) { // new file loaded - have to delete old one
-                            self.change_announce({add: false});
-                        } else { // only description cahnge
-                            mode = 'change';
-                            desc = {[map_file.img_id]: map_file.desc};
-                            file_ids = [map_file.img_id];
-                            files = [];
-                        }
-                    }
-                    let jsondata = {
-                        mode: mode,
-                        storage: 'imagestorage',
-                        desc: desc,
-                        type: 'announce',
-                        file_ids: file_ids,
-                    };
-                    sendDataV2({
-                        type: 'form',
-                        method: 'POST',
-                        url: '/api/v1/main/file_storage/',
-                        jsondata: jsondata,
-                        files: files,
-                    }).then(data => {
-                        self.response_warn = '';
-                        self.response_success = data.msg;
-                        modal_show({id: '#modalResponseSuccess', timeout: 1000});
-                        self.get_announce();
-                    }).catch(err => {
-                        self.response_warn = err.msg;
-                        modal_show({id: '#modalResponseWarn'});
-                    });
-                } else {
-                    let jsondata = {
-                        mode: 'delete',
-                        storage: 'imagestorage',
-                        file_ids: [self.map_file.img_id],
-                        type: 'announce',
-                    };
-                    sendDataV2({
-                        type: 'form',
-                        method: 'POST',
-                        url: '/api/v1/main/file_storage/',
-                        jsondata: jsondata,
-                    }).then(data => {
-                        self.response_warn = '';
-                        self.response_success = data.msg;
-                        modal_show({id: '#modalResponseSuccess', timeout: 1000});
-                        self.map_file = {
-                            img_id: 0,
-                            blob: '',
-                            data_url: '',
-                            desc: '',
-                        };
-                    }).catch(err => {
-                        self.response_warn = err.msg;
-                        modal_show({id: '#modalResponseWarn'});
-                    });
-                }
+                sendDataV2({
+                    type: 'form',
+                    method: 'POST',
+                    url: '/api/v1/addrbook/change_mmb_map/',
+                    jsondata: {},
+                    files: [],
+                }).then(data => {
+                    self.response_info = ""
+                    self.response_warn = "";
+                    self.response_success = data.msg;
+                    modal_show({id: '#modalResponseSuccess', timeout: 1000});
+                    self.get_map();
+                }).catch(err => {
+                    self.response_info = ""
+                    self.response_warn = err.msg;
+                    modal_show({id: '#modalResponseWarn'});
+                });
             },
-            get_announce: function () {
+            get_map: function () {
                 let self = this;
                 getDataV2('/api/v1/addrbook/mmb_map/').then(data => {
                     self.err_msg = '';
@@ -214,7 +171,7 @@
         },
         created() {
             let self = this;
-            self.get_announce();
+            self.get_map();
         },
     });
 </script>
