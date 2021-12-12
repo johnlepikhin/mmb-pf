@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from rest_framework import exceptions, mixins, viewsets
 from rest_framework.renderers import JSONRenderer
 
@@ -40,3 +41,15 @@ class CustomSignesViewSet(viewsets.ReadOnlyModelViewSet):
 
     def permission_denied(self, request, message):
         raise exceptions.PermissionDenied("У вас нет прав для выполнения данного запроса")
+
+
+###############################################################################
+# Custom views
+def mmb_map(request):
+    """
+    get and change mmb map
+    """
+    if request.method != "GET":
+        return JsonResponse({"msg": "Некорректный метод запроса, только GET"}, status=405, safe=False)
+
+    return JsonResponse({"msg": "mmb map is here"}, status=200, safe=False)

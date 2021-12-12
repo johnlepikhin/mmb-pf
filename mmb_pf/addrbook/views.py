@@ -23,6 +23,15 @@ def addrbook_info(request):
 
 
 # @permission_required("addrbook.view_addrbook", raise_exception=True)
+def mmb_map(request):
+    return render(
+        request,
+        "addrbook/mmb_map.html",
+        {},
+    )
+
+
+# @permission_required("addrbook.view_addrbook", raise_exception=True)
 def participant_card(request, participant_id):
     return render(
         request,
