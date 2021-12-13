@@ -1,5 +1,6 @@
 import json
 import re
+import shutil
 
 from django.contrib.auth import password_validation, update_session_auth_hash
 from django.contrib.auth.decorators import permission_required
@@ -7,9 +8,11 @@ from django.http import JsonResponse
 from rest_framework import exceptions, mixins, viewsets
 from rest_framework.renderers import JSONRenderer
 
+import mmb_pf.mmb_pf_memcache as memcache
 from addrbook.models import Teams
 from mmb_pf.common_services import get_constant_models
 from mmb_pf.drf_api import BaseModelPermissions, request_fields_parser
+from mmb_pf.settings import BASE_DIR
 
 from .models import (
     ImageStorage,
@@ -86,7 +89,7 @@ class MMBPFUsersViewSet(
 
         return super(MMBPFUsersViewSet, self).get_serializer_class()
 
-    def permission_denied(self, request, message, code):
+    def permission_denied(self, request, message=None, code=None):
         raise exceptions.PermissionDenied("У вас нет прав для выполнения данного запроса")
 
 
@@ -100,7 +103,7 @@ class ParticipantCardActionsJournalViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ParticipantCardActionsJournalSerializer
     permission_classes = [BaseModelPermissions]
 
-    def permission_denied(self, request, message):
+    def permission_denied(self, request, message=None, code=None):
         raise exceptions.PermissionDenied("У вас нет прав для выполнения данного запроса")
 
     def get_queryset(self):
@@ -190,3 +193,28 @@ def change_my_password(request):
         return JsonResponse({"msg": "Введён некорректный текущий пароль"}, status=422, safe=False)
 
     return JsonResponse({"msg": "Изменения сохранены"}, status=200, safe=False)
+
+
+# @permission_required('administration.view_main_menu', raise_exception=True)
+@memcache.get_system_status_cache
+def get_system_status(request):
+    """
+    Return status of system
+    """
+    if request.method != "GET":
+        return JsonResponse({"msg": "Некорректный метод запроса, разрешён только GET"}, status=405, safe=False)
+
+    result = {
+        "cfg": {
+            "refresh_time": SystemSettings.objects.get_option(name="main_page_info_refresh_time", default=3600),
+        },
+        "disk": {"total": 0, "used": 0, "free": 0},
+    }
+
+    # DISK
+    total, used, free = shutil.disk_usage(BASE_DIR)
+    result["disk"]["total"] = total
+    result["disk"]["used"] = used
+    result["disk"]["free"] = free
+
+    return JsonResponse(result, safe=False)

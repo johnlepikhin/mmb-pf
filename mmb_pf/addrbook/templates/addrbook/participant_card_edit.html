@@ -63,7 +63,30 @@
                         <!-- form header end -->
                         <!-- Form card -->
                         <div class="card my-2">
-                            <div class="card-body form-horizontal">
+                            <div class="card-body form-horizontal p-2">
+                                <div class="form-group row">
+                                    <label class="col-12 col-sm-9 my-auto text-bold text-gray">Зарегистрировать всю команду</label>
+                                    <div class="col-12 col-sm-3 my-auto">
+                                        <div class="row float-right">
+                                            <button
+                                                :class="universalBtnClass({key: reg_all_my_team, me: true})"
+                                                type="button"
+                                                @click="reg_all_my_team = true">
+                                                Да
+                                            </button>
+                                            <button
+                                                :class="universalBtnClass({key: reg_all_my_team, me: false})"
+                                                type="button"
+                                                @click="reg_all_my_team = false">
+                                                Нет
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <span class="text-xsmall text-black-50 mx-3">
+                                        <i class="fas fa-info-circle"></i> Если участник вашей команды уже зарегистрировался, то его данные не будут перезаписаны
+                                    </span>
+                                </div>
+                                <div class="line"></div>
                                 <div class="form-group row mb-2">
                                     <label class="col-sm-3 my-auto text-bold text-gray">ФИО</label>
                                     <div class="col-sm-9 my-auto">
@@ -84,8 +107,8 @@
                                 </div>
                                 <div class="line"></div>
                                 <div class="form-group row mb-2">
-                                    <label class="col-sm-3 my-auto text-bold text-gray">Улица</label>
-                                    <div class="col-sm-7 my-auto">
+                                    <label class="col-lg-3 my-auto text-bold text-gray">Улица</label>
+                                    <div class="col-lg-9 my-auto">
                                         <multiselect
                                             v-model="participant.street"
                                             :options=streets
@@ -105,8 +128,8 @@
                                     </div>
                                 </div>
                                 <div class="form-group row mb-2">
-                                    <label class="col-sm-3 my-auto text-bold text-gray">Указатель</label>
-                                    <div class="col-sm-7 my-auto">
+                                    <label class="col-lg-3 my-auto text-bold text-gray">Указатель</label>
+                                    <div class="col-lg-9 my-auto">
                                         <multiselect
                                             v-model="participant.sign"
                                             :options="participant.street ? participant.street.signes : []"
@@ -127,8 +150,8 @@
                                     </div>
                                 </div>
                                 <div class="form-group row mb-2">
-                                    <label class="col-sm-3 my-auto text-bold text-gray">Описание</label>
-                                    <div class="col-sm-7 my-auto">
+                                    <label class="col-lg-3 my-auto text-bold text-gray">Описание</label>
+                                    <div class="col-lg-9 my-auto">
                                         <ckeditor
                                             :editor="editor"
                                             v-model="participant.user_desc"
@@ -137,8 +160,8 @@
                                     </div>
                                 </div>
                                 <div class="form-group row mb-2">
-                                    <label class="col-sm-3 my-auto text-bold text-gray">Индивидуальный Указатель</label>
-                                    <div class="col-sm-7 my-auto">
+                                    <label class="col-lg-3 my-auto text-bold text-gray">Индивидуальный Указатель</label>
+                                    <div class="col-lg-9 my-auto">
                                         <multiselect
                                             v-model="participant.custom_sign"
                                             :options="customsignes"
@@ -156,7 +179,7 @@
                                 </div>
                                 <div class="line"></div>
                                 <div class="form-group row mb-2">
-                                    <div class="col-sm-3 my-auto">
+                                    <div class="col-lg-3 my-auto">
                                         <label class="text-bold text-gray">
                                             Фото -* participant.images.length + new_images.length *-
                                             -* ! participant.images.length ? "не загружены" : "" *-
@@ -170,7 +193,7 @@
                                         </button>
                                         <input type="file" multiple="multiple" id="userphoto" name="file1" style="display:none" @change="reg_image"/>
                                     </div>
-                                    <div class="col-sm-7 my-auto">
+                                    <div class="col-lg-9 my-auto">
                                         <div v-if="new_images.length" v-for="(image, index) in new_images" >
                                             <div class="card card-image" :style="'background-size: cover; background-image: url(' + image.b64 + ');'">
                                                 <div class="text-white text-right px-3 py-3" style="height: 300px; max-width: 100%">
@@ -223,6 +246,7 @@
             response_success: '', // response good answ
             response_warn: '', // response bad answ
             participant: {},
+            reg_all_my_team: false,
             new_images: [],
             participant_changed: false,
             streets: [],
@@ -245,18 +269,7 @@
             editorConfig: {
                 language: 'ru',
                 placeholder: 'Описание как добраться',
-                toolbar: {
-                    items: [
-                        'heading', '|',
-                        'bold', 'italic', '|',
-                        'numberedList', 'bulletedList', 'insertTable', '|',
-                        'indent', 'outdent', '|',
-                        'blockQuote', 'link', 'mediaEmbed', '|',
-                        'undo', 'redo',
-                    ],
-                    viewportTopOffset: 15,
-                    shouldNotGroupWhenFull: true
-                }
+                toolbar: CKeditorToolbarDefault,
             },
         },
         components: {
@@ -335,6 +348,7 @@
                             obj: obj.blob,
                         });
                     });
+                    self.participant.reg_all_my_team = self.reg_all_my_team;
                     sendDataV2({
                         // type: 'json',
                         type: 'form',

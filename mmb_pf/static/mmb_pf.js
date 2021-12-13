@@ -707,11 +707,18 @@ class object {}
 function universalBtnClass(args) {
     let returnedClass = Object.assign(
         {
-            'btn': true, 'btn-md': true, 'm-0': true, 'px-3': true, 'py-2': false, 'z-depth-0': true, 'waves-effect': true, 'rounded': true,
+            'btn': true,
+            'btn-sm': true,
+            'mx-1': true,
+            'px-3': true,
+            'py-2': false,
+            'z-depth-0': true,
+            'waves-effect': true,
+            'rounded': false,
         },
         args.classes
     );
-    let color_classes = ['btn-outline-success', 'btn-outline-light'];
+    let color_classes = ['btn-outline-info', 'btn-outline-light'];
     if ('color_classes' in args && args.color_classes.length) {
         color_classes = args.color_classes;
     }

@@ -82,7 +82,8 @@ class MMBPFUserSerializer(serializers.ModelSerializer):
 
     def to_internal_value(self, data):
         # data sends by form type, so we have to catch all things right
-        internal_value = super(MMBPFUserSerializer, self).to_internal_value(json.loads(data.get("jsondata")))
+        jsondata = json.loads(data.get("jsondata"))
+        internal_value = super(MMBPFUserSerializer, self).to_internal_value(jsondata)
         if (max_images_per_user + 1) < (len(data) + len(internal_value["images"])):
             raise exceptions.ValidationError(
                 {"Максимально допустимое количество изображений для участника:": max_images_per_user}
@@ -107,6 +108,8 @@ class MMBPFUserSerializer(serializers.ModelSerializer):
                 )
             )
 
+        internal_value["reg_all_my_team"] = jsondata.get("reg_all_my_team", False)
+
         return internal_value
 
     def update(self, instance, validated_data):
@@ -127,7 +130,12 @@ class MMBPFUserSerializer(serializers.ModelSerializer):
             raise exceptions.ValidationError("Поле 'modification_date' является обязательным")
 
         changed_data = []
+        skipped_fields = ["reg_all_my_team"]
+        stay_images_ids = []
         for attr, value in validated_data.items():
+            if attr in skipped_fields:
+                continue
+
             if attr != "modification_date" and value != getattr(instance, attr):
                 changed_data.append(f"Изменение {attr}: {value}")
 
@@ -147,6 +155,19 @@ class MMBPFUserSerializer(serializers.ModelSerializer):
                 setattr(instance, attr, value)
 
         instance.save()
+
+        if validated_data.get("reg_all_my_team", False):
+            for team_mate in MMBPFUsers.objects.filter(team__id=instance.team.id):
+                if team_mate.street or team_mate.sign:
+                    continue
+                team_mate.street = instance.street
+                team_mate.sign = instance.sign
+                team_mate.custom_sign = instance.custom_sign
+                team_mate.user_desc = instance.user_desc
+                team_mate.images.set(stay_images_ids)
+                team_mate.save()
+
+                changed_data.append(f"Регистрация скопирована для: {team_mate.last_name}")
 
         # store in journal
         if not changed_data:

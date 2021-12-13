@@ -1,13 +1,15 @@
+import json
+
 from django.contrib.auth.decorators import permission_required
 from django.http import JsonResponse
-from rest_framework import exceptions, mixins, viewsets
+from rest_framework import exceptions, viewsets
 from rest_framework.renderers import JSONRenderer
 
-from administration.models import ImageStorage, SystemSettings
+from administration.models import ImageStorage, MMBPFUsers, SystemSettings
 from administration.serializers import ImageStorageSerializer
 from mmb_pf.common_services import get_constant_models
 
-from .models import CustomSignes, Streets
+from .models import CustomSignes, Streets, Teams
 from .serializers import CustomSignesSerializer, StreetsSerializer
 
 # from mmb_pf.drf_api import BaseModelPermissions
@@ -26,7 +28,7 @@ class StreetsViewSet(viewsets.ReadOnlyModelViewSet):
 
     # permission_classes = [BaseModelPermissions]
 
-    def permission_denied(self, request, message):
+    def permission_denied(self, request, message=None, code=None):
         raise exceptions.PermissionDenied("У вас нет прав для выполнения данного запроса")
 
 
@@ -41,7 +43,7 @@ class CustomSignesViewSet(viewsets.ReadOnlyModelViewSet):
 
     # permission_classes = [BaseModelPermissions]
 
-    def permission_denied(self, request, message):
+    def permission_denied(self, request, message=None, code=None):
         raise exceptions.PermissionDenied("У вас нет прав для выполнения данного запроса")
 
 
@@ -108,3 +110,43 @@ def change_mmb_map(request):
 
         SystemSettings.objects.set_option(name="mmb_map_image_id", value=image_obj.id)
         return JsonResponse({"msg": "Карта обновлена"}, status=200)
+
+
+def addrbook_info(request):
+    """
+    get addrbook info
+    """
+    if request.method != "GET":
+        return JsonResponse({"msg": "Некорректный метод запроса, только GET"}, status=405)
+
+    addrbook_info_res = {
+        "text": SystemSettings.objects.get_option(name="addrbook_text_info", default=""),
+        "participants_cnt": MMBPFUsers.objects.filter(
+            user_type=constant_models["USER_TYPE"]["names"]["Участник"]
+        ).count(),
+        "participants_reg_cnt": MMBPFUsers.objects.filter(
+            user_type=constant_models["USER_TYPE"]["names"]["Участник"],
+            street__isnull=False,
+        ).count(),
+        "teams_cnt": Teams.objects.all().count(),
+    }
+
+    return JsonResponse(addrbook_info_res, status=200)
+
+
+@permission_required("administration.can_change_info", raise_exception=True)
+def change_addrbook_info(request):
+    if request.method != "POST":
+        return JsonResponse({"msg": "Некорректный метод запроса, только POST"}, status=405)
+
+    new_text_info = None
+    try:
+        new_text_info = json.loads(request.body)
+    except Exception:
+        return JsonResponse({"msg": "Тело запроса должно быть json строкой"}, status=415)
+
+    if "text" in new_text_info:
+        SystemSettings.objects.set_option(name="addrbook_text_info", value=new_text_info["text"])
+        return JsonResponse({"msg": "Информация обновлена"}, status=200)
+
+    return JsonResponse({"msg": "Некорректные данные запроса, не передан ключ text в jsondata"}, status=405)

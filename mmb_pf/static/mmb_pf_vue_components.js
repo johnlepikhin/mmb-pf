@@ -370,3 +370,16 @@ let ChartBarStacked = Vue.component('chart-bars-stacked', {
         }
     }
 });
+
+let CKeditorToolbarDefault = {
+    items: [
+        'heading', '|',
+        'bold', 'italic', '|',
+        'numberedList', 'bulletedList', 'insertTable', '|',
+        'indent', 'outdent', '|',
+        'blockQuote', 'link', 'mediaEmbed', '|',
+        'undo', 'redo',
+    ],
+    viewportTopOffset: 15,
+    shouldNotGroupWhenFull: true
+};

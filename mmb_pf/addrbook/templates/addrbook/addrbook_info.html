@@ -11,23 +11,29 @@
 <div class="page">
     {% include "header.html" %}
     <div id="addrbook_info" class="mt-1 p-2">
+        {% include "modals.html" %}
         <div class="row">
             <div class="col-12">
                 <div class="card mb-1">
-                    <div class="card-header white d-flex justify-content-between align-items-center py-3">
+                    <div class="card-header white">
                         <div class="col-12 p-0">
-                            <p class="h5-responsive font-weight-bold mb-0 mx-auto app-header">Информация от организаторов</p>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <p class="app-header">Информация от организаторов
+                                    <i v-if="info_changed" class="far fa-save fa-1x m-0 p-0 text-danger ml-2"></i>
+                                </p>
+                                <button
+                                    v-if="can_change_info === 'True'"
+                                    class="btn btn-sm btn-default"
+                                    @click="change_info()">
+                                    <span class="text-white">
+                                        <i class="far fa-save"></i> Обновить информацию
+                                    </span>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    <div v-if="! appLoading" class="card-body py-1">
-                        <!-- <div class="row">
-                            <div class="col-sm-12 mx-0">
-                                <span class="text-xsmall text-gray mx-0">
-                                    <i class="fas fa-info-circle"></i> Информация обновляется не чаще чем раз в -*main_status.cfg.refresh_time*- сек.
-                                </span>
-                            </div>
-                        </div> -->
-                    </div>
+                    <!--<div v-if="! appLoading" class="card-body py-1">
+                    </div>-->
                 </div>
                 <div v-if="appLoading" class="text-center py-5">
                     <div class="logo-wrapper spinner-grow text-info" role="status" style="width: 3rem; height: 3rem;">
@@ -38,42 +44,63 @@
                         <b>Ошибка!</b> -* err_msg *-
                     </div>
                 </div>
-                <div v-else-if="info_msg" class="pt-2 px-2">
-                    <div class="alert alert-info">
-                        <b>Информация!</b> -* info_msg *-
-                    </div>
-                </div>
                 <div v-else>
                     <div class="card mb-1 mt-1">
-                        <div class="card-header white">
-                            <div class="row d-flex justify-content-start my-auto">
+                        <!-- <div v-if="can_change_info === 'True'" class="card-header white">
+                            <div class="row my-auto">
                                 <div class="col-12">
-                                    <span class="my-auto text-gray text-bold">Общая информация</span>
-                                    <!-- <p class="text-xsmall text-gray m-0">
-                                        <i class="fas fa-info-circle"></i> Если количество отправленных писем за сутки достигнет максимума, система перестанет посылать сообщения
-                                    </p> -->
+                                    <div class="card-header white">
+                                        <div class="row d-flex justify-content-end">
+                                            <button class="btn btn-sm btn-default" @click="change_info()">
+                                                <span class="text-white"><i class="far fa-save"></i> Обновить информацию</span>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         <div class="card-body py-1">
                             <div class="row">
-                                <div class="col-12 my-auto">
-                                    Изменяемая из админки информация для участников
+                                <div v-if="can_change_info === 'True'" class="col-12 my-auto">
+                                    <ckeditor
+                                        :editor="editor"
+                                        v-model="addrbook_info.text"
+                                        :config="editorConfig">
+                                    </ckeditor>
+                                </div>
+                                <div v-else class="col-12 my-auto">
+                                    <span v-html="addrbook_info.text"></span>
                                 </div>
                             </div>
                         </div>
                         <div class="card-footer">
                             <div class="row">
-                                <div class="col-6 my-auto">
-                                    Зарегистрировано участников:
+                                <div class="col-7 col-sm-5 my-auto">
+                                    Всего участников:
                                 </div>
-                                <div class="col-6 my-auto">
+                                <div class="col-5 col-sm-7 my-auto">
+                                    -* addrbook_info.participants_cnt *-
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-7 col-sm-5 my-auto">
+                                    Всего команд:
+                                </div>
+                                <div class="col-5 col-sm-7 my-auto">
+                                    -* addrbook_info.teams_cnt *-
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-7 col-sm-5 my-auto">
+                                    Зарегистрировано:
+                                </div>
+                                <div class="col-12 col-sm-7 my-auto">
                                     <div class="progress">
                                         <div
                                             class="progress-bar bg-info"
                                             role="progressbar"
-                                            :style="calc_pb({'simple': {'all': main_status.total, 'curr': main_status.reg}, 'type': 'get_class'})">
-                                            -* calc_pb({'simple': {'all': main_status.total, 'curr': main_status.reg}, 'type': 'get_pct'}) *-
+                                            :style="calc_pb({'simple': {'all': addrbook_info.participants_cnt, 'curr': addrbook_info.participants_reg_cnt}, 'type': 'get_class'})">
+                                            -* calc_pb({'simple': {'all': addrbook_info.participants_cnt, 'curr': addrbook_info.participants_reg_cnt}, 'type': 'get_pct'}) *-
                                         </div>
                                     </div>
                                 </div>
@@ -94,25 +121,64 @@
             return {
                 appLoading: true,
                 err_msg: '',
-                info_msg: '',
-                main_status: {
-                    total: 100,
-                    reg: 45,
+                response_info: '',
+                response_warn: '',
+                response_success: '',
+                can_change_info: "{{ can_change_info }}",
+                addrbook_info: {},
+                editor: ClassicEditor,
+                info_changed: false,
+                editorConfig: {
+                    language: 'ru',
+                    placeholder: 'Информация от организаторов',
+                    toolbar: CKeditorToolbarDefault,
                 },
             }
         },
+        watch: {
+            addrbook_info: {
+                handler(val) {
+                    let self = this;
+                    if (! self.appLoading) {
+                        self.info_changed = true;
+                    }
+                },
+                deep: true
+            },
+        },
         methods: {
-
+            change_info: function (args) {
+                let self = this;
+                sendDataV2({
+                    method: 'POST',
+                    url: '/api/v1/addrbook/change_addrbook_info/',
+                    jsondata: {
+                        text: self.addrbook_info.text,
+                    },
+                }).then(data => {
+                    self.response_info = ""
+                    self.response_warn = "";
+                    self.response_success = data.msg;
+                    modal_show({id: '#modalResponseSuccess', timeout: 1000});
+                    self.info_changed = false;
+                }).catch(err => {
+                    self.response_info = ""
+                    self.response_warn = err.msg;
+                    modal_show({id: '#modalResponseWarn'});
+                });
+            },
+        },
+        components: {
+            ckeditor: CKEditor.component,
         },
         created() {
             let self = this;
             const loadable_fields = [
-                {'url': '/api/v1/main/status/', 'var': 'main_status'},
+                {'url': '/api/v1/addrbook/addrbook_info/', 'var': 'addrbook_info'},
             ];
-            //loadItems({'load': loadable_fields, 'self': self, 'sync': true}).then(() => {
-            //    self.appLoading = false;
-            //});
-            self.appLoading = false;
+            loadItems({'load': loadable_fields, 'self': self, 'sync': true}).then(() => {
+                self.appLoading = false;
+            });
         },
     })
 </script>

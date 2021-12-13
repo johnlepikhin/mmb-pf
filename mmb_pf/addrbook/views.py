@@ -18,7 +18,9 @@ def addrbook_info(request):
     return render(
         request,
         "addrbook/addrbook_info.html",
-        {},
+        {
+            "can_change_info": request.user.has_perm("administration.can_change_info"),
+        },
     )
 
 

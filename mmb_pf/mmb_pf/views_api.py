@@ -1,11 +1,10 @@
 # from django.contrib.auth.decorators import permission_required
-import shutil
+
 
 from django.http import JsonResponse
 
 import mmb_pf.mmb_pf_memcache as memcache
-from administration.models import MainMenu, SystemSettings
-from mmb_pf.settings import BASE_DIR
+from administration.models import MainMenu
 
 
 # @permission_required('administration.view_main_menu', raise_exception=True)
@@ -51,32 +50,5 @@ def get_user_status(request):
     }
     for group in request.user.groups.all():
         result["groups"].append(group.name)
-
-    return JsonResponse(result, safe=False)
-
-
-# @permission_required('administration.view_main_menu', raise_exception=True)
-@memcache.get_system_status_cache
-def get_system_status(request):
-    """
-    TAKE:
-    RETURN:
-        status of system
-    """
-    result = {
-        "cfg": {
-            "refresh_time": SystemSettings.objects.get_option(name="main_page_info_refresh_time", default=3600),
-        },
-        "disk": {"total": 0, "used": 0, "free": 0},
-    }
-
-    if request.method != "GET":
-        return JsonResponse({"msg": "Некорректный метод запроса, разрешён только GET"}, status=405, safe=False)
-
-    # DISK
-    total, used, free = shutil.disk_usage(BASE_DIR)
-    result["disk"]["total"] = total
-    result["disk"]["used"] = used
-    result["disk"]["free"] = free
 
     return JsonResponse(result, safe=False)

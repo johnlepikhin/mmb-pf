@@ -15,7 +15,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-MMB_PF_VERSION = "0.8.0"
+MMB_PF_VERSION = "0.9.0"
 logger = logging.getLogger(__name__)
 logger.critical(
     f"{'#'*80}\n# MMB PF v{MMB_PF_VERSION} started: {datetime.now().strftime('%d.%m.%Y %H:%M')}\n{'#'*80}\n"
@@ -67,6 +67,7 @@ MIDDLEWARE = [
 AUTH_USER_MODEL = "administration.MMBPFUsers"
 ROOT_URLCONF = "mmb_pf.urls"
 LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
 
 # used in the admin interface
 CKEDITOR_CONFIGS = {

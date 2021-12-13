@@ -43,15 +43,21 @@ APIVER = "v1"
 api_custom = [
     path(f"api/{APIVER}/main/menu/", mmb_pf_views_api.get_main_menu, name="main_menu"),
     path(f"api/{APIVER}/main/user_status/", mmb_pf_views_api.get_user_status, name="get_user_status"),
-    path(f"api/{APIVER}/main/status/", mmb_pf_views_api.get_system_status, name="get_system_status"),
     path(
         f"api/{APIVER}/administration/change_my_password/",
         administration_views_api.change_my_password,
         name="administraion_change_my_password",
     ),
+    path(f"api/{APIVER}/administration/status/", administration_views_api.get_system_status, name="get_system_status"),
     path(f"api/{APIVER}/administration/cleanup_db/", administration_views_api.cleanup_db, name="cleanup_db"),
     path(f"api/{APIVER}/addrbook/mmb_map/", addrbook_views_api.mmb_map, name="mmb_map"),
     path(f"api/{APIVER}/addrbook/change_mmb_map/", addrbook_views_api.change_mmb_map, name="change_mmb_map"),
+    path(f"api/{APIVER}/addrbook/addrbook_info/", addrbook_views_api.addrbook_info, name="addrbook_info"),
+    path(
+        f"api/{APIVER}/addrbook/change_addrbook_info/",
+        addrbook_views_api.change_addrbook_info,
+        name="change_addrbook_info",
+    ),
 ]
 
 # API DRF
