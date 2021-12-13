@@ -92,7 +92,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-7 col-sm-5 my-auto">
-                                    Зарегистрировано:
+                                    Зарегистрировалось:
                                 </div>
                                 <div class="col-12 col-sm-7 my-auto">
                                     <div class="progress">
@@ -100,7 +100,7 @@
                                             class="progress-bar bg-info"
                                             role="progressbar"
                                             :style="calc_pb({'simple': {'all': addrbook_info.participants_cnt, 'curr': addrbook_info.participants_reg_cnt}, 'type': 'get_class'})">
-                                            -* calc_pb({'simple': {'all': addrbook_info.participants_cnt, 'curr': addrbook_info.participants_reg_cnt}, 'type': 'get_pct'}) *-
+                                            -*addrbook_info.participants_reg_cnt*- чел - -* calc_pb({'simple': {'all': addrbook_info.participants_cnt, 'curr': addrbook_info.participants_reg_cnt}, 'type': 'get_pct'}) *-
                                         </div>
                                     </div>
                                 </div>
