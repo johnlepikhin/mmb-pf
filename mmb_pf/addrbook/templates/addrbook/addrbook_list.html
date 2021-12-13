@@ -15,16 +15,12 @@
         <div class="row">
             <div class="col-12">
                 <div v-if="appLoading" class="text-center py-5">
-                    <div class="logo-wrapper spinner-grow text-info" role="status" style="width: 3rem; height: 3rem;"></div>
+                    <div class="logo-wrapper spinner-grow text-info" role="status" style="width: 3rem; height: 3rem;">
+                    </div>
                 </div>
                 <div v-else-if="err_msg" class="pt-2 px-2">
                     <div class="alert alert-danger">
                         <b>Ошибка!</b> -* err_msg *-
-                    </div>
-                </div>
-                <div v-else-if="info_msg" class="pt-2 px-2">
-                    <div class="alert alert-info">
-                        <b>Информация!</b> -* info_msg *-
                     </div>
                 </div>
                 <div v-else class="row" data-spy="scroll">
@@ -57,7 +53,7 @@
                                         <span class="text-gray text-small">Отобрано:<strong> -* participants_filtered.length *-</strong></span>
                                     </div>
                                 </div>
-                                <div :class="table_fader()">
+                                <div>
                                     <table class="table table-sm table-bordered table-responsive mb-0" style="display: inline-table;">
                                         <thead class="teal lighten-1 text-center text-white w-100">
                                             <tr class="table-borderless">
@@ -111,10 +107,8 @@
         delimiters: ['-*', '*-'],
         data: {
             appLoading: true,
-            table_reload: false,
             filter_key: '',
             err_msg: '',
-            info_msg: '',
             response_success: '',
             response_warn: '',
             response_info: '',
@@ -188,43 +182,8 @@
                 return ready_participants
             },
         },
-        watch: {
-            table_reload: function(val) {
-                let self = this;
-                self.table_fader();
-            },
-        },
         methods: {
-            table_fader: function (args) {
-                let self = this;
-                let returned_class = {
-                    'animated': true,
-                };
-                if (self.table_reload) {
-                    returned_class['fadeOut'] = true;
-                } else {
-                    returned_class['fadeIn'] = true;
-                }
-                return returned_class;
-            },
-            // TODO: change to reg | not reg colorizer
-            get_weekday_color: function (args) {
-                let self = this;
-                let returned_class = {
-                    'indigo': true,
-                    'lighten-3': true,
-                };
-                if (args.day == 'сб' || args.day == 'вс') {
-                    returned_class = {
-                        'red': true,
-                        'lighten-3': true,
-                    };
-                }
-                for (idx in args.classes) {
-                    returned_class[args.classes[idx]] = true;
-                }
-                return returned_class;
-            },
+
         },
         created() {
             let self = this;
@@ -232,10 +191,9 @@
                 {'url': '/api/v1/administration/users/', 'var': 'participants'},
             ];
 
-            loadItems({'load': loadable_fields, 'self': self}).then(() => {
+            loadItems({'load': loadable_fields, 'self': self, 'sync': true}).then(() => {
                 self.appLoading = false;
             });
-            self.appLoading = false;
         },
     });
 </script>

@@ -103,34 +103,26 @@ def get_user_status_cache(func):
     return user_status_cache
 
 
-def scheduler_tasks_counter_cache(**kwargs):
+def get_addrbook_cache(func):
     """
-    CACHE:
-        Name: scheduler_tasks_counter
-        Increment its counter every time when called
-    TAKE:
-        increment_task='', # [OPTIONAL], Increment counter of defined task name
+    DECORATOR !
+    @get_addrbook_cache
+    def method():
 
-    RETURN:
-        return cache data (create new one if not existed)
+    Decorator for caching addrbook list result
     """
-    known_tasks = ["mail_for_send"]
-    if "increment_task" in kwargs and not kwargs["increment_task"] in known_tasks:
-        raise ValueError(f"task {kwargs['increment_task']} is unknown")
 
-    cache_name = f"{INSTANCE_PREF}-scheduler_tasks_counter"
-    cache_data = cache.get(cache_name)
+    def addrbook_cache(self, *args, **kwargs):
+        cache_name = f"{INSTANCE_PREF}-addrbook_cache"
+        cache_data = cache.get(cache_name)
+        if not cache_data:
+            cache_data = func(self, *args, **kwargs)    
+            cache.set(
+                cache_name,
+                cache_data,
+                SystemSettings.objects.get_option(name="addrbook_cache_ttl", default=3600),
+            )
 
-    if not cache_data:
-        cache_data = {}
-        for task_name in known_tasks:
-            cache_data[task_name] = {
-                "count": 0,
-            }
-    else:
-        if "increment_task" in kwargs:
-            cache_data[kwargs["increment_task"]]["count"] += 1
+        return cache_data
 
-    cache.set(cache_name, cache_data)
-
-    return cache_data
+    return addrbook_cache
