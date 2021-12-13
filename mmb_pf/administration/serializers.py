@@ -76,7 +76,6 @@ class MMBPFUserSerializer(serializers.ModelSerializer):
             "last_name",
             "birth",
             "patronymic",
-            "tourist_club",
         )
         depth = 1
 

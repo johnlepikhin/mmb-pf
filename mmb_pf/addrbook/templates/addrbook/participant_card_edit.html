@@ -39,7 +39,7 @@
                                         <i v-if="participant_changed" class="far fa-save m-0 p-0 text-danger ml-2"></i>
                                     </div>
                                     <div class="">
-                                        <button class="btn btn-sm btn-outline-success" :disabled="! participant.street" @click="sendForm(participant_id)">
+                                        <button class="btn btn-sm btn-outline-success" :disabled="! participant_changed" @click="sendForm(participant_id)">
                                             <span>Сохранить <i class="fas fa-user-edit"></i></span>
                                         </button>
                                     </div>
@@ -99,10 +99,10 @@
                                         <span class="">-* participant.team_name *-</span>
                                     </div>
                                 </div>
-                                <div v-if="participant.tourist_club" class="form-group row mb-2">
+                                <div class="form-group row mb-2">
                                     <label class="col-sm-3 my-auto text-bold text-gray">Турклуб</label>
                                     <div class="col-sm-9 my-auto">
-                                        <span class="">-* participant.tourist_club *-</span>
+                                        <input type="text" class="form-control form-control-sm" v-model.trim="participant.tourist_club">
                                     </div>
                                 </div>
                                 <div class="line"></div>

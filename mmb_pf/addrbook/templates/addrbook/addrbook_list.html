@@ -38,11 +38,12 @@
                                 <div class="row">
                                     <div class="col-sm-10">
                                         <div class="md-form input-group my-0">
-                                            <div class="input-group-prepend">
-                                                <span class="input-group-text btn-outline-grey">Поиск</span>
-                                            </div>
+                                            <!--<div class="input-group-prepend">
+                                                <span class="input-group-text">Фильтр</span>
+                                            </div>-->
                                             <input type="text" class="form-control" placeholder="Имя | Команда | № Команды | Турклуб" v-model="filter_key">
                                             <div class="input-group-append">
+                                                <span class="input-group-text btn-outline-grey">Поиск</span>
                                                 <button class="btn btn-md btn-sm btn-outline-grey m-0 px-3" type="button" @click="filter_key = ''">
                                                     <span class="fas fa-times"></span>
                                                 </button>
