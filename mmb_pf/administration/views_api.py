@@ -4,9 +4,8 @@ import shutil
 
 from django.contrib.auth import password_validation, update_session_auth_hash
 from django.contrib.auth.decorators import permission_required
+from django.core.cache import cache
 from django.http import JsonResponse
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
 from rest_framework import exceptions, mixins, viewsets
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
@@ -15,8 +14,7 @@ import mmb_pf.mmb_pf_memcache as memcache
 from addrbook.models import Teams
 from mmb_pf.common_services import get_constant_models
 from mmb_pf.drf_api import BaseModelPermissions, request_fields_parser
-from mmb_pf.mmb_pf_memcache import get_addrbook_cache
-from mmb_pf.settings import BASE_DIR
+from mmb_pf.settings import BASE_DIR, INSTANCE_PREF
 
 from .models import (
     ImageStorage,
@@ -32,6 +30,7 @@ from .serializers import (
 
 constant_models = get_constant_models()
 max_shown_journal_entries = SystemSettings.objects.get_option(name="max_shown_journal_entries", default=1000)
+
 ###############################################################################
 # DRF views
 class MMBPFUsersViewSet(
@@ -86,11 +85,19 @@ class MMBPFUsersViewSet(
 
         return queryset
 
-    @method_decorator(cache_page(SystemSettings.objects.get_option(name="addrbook_cache_ttl", default=3600)))
     def list(self, request, format=None):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        cache_name = f"{INSTANCE_PREF}-addrbook_cache"
+        serializer_data = cache.get(cache_name)
+        if not serializer_data:
+            serializer_data = serializer.data
+            cache.set(
+                cache_name,
+                serializer_data,
+                SystemSettings.objects.get_option(name="user_status_cache_ttl", default=3600),
+            )
+        return Response(serializer_data)
 
     def get_serializer_class(self):
         if hasattr(self, "action_serializers"):

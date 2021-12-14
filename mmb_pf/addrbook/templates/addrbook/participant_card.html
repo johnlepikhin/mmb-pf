@@ -33,11 +33,11 @@
                     <div class="col-md-12 pr-2">
                         <div class="card mb-1">
                             <div class="card-header white">
-                                <div class="row app-header justify-content-between">
-                                    <div class="my-auto ml-3">
+                                <div class="row app-header">
+                                    <div class="col-12 col-sm-8">
                                         -* participant.last_name *- -* participant.first_name *- -* participant.patronymic *-
                                     </div>
-                                    <div class="mr-1 ml-2">
+                                    <div class="col-12 col-sm-4 text-right">
                                         <a class="btn btn-sm btn-outline-info" :href="window.location.href + 'edit'">
                                             <span v-if="participant.street">Редактировать <i class="fas fa-user-edit"></i></span>
                                             <span v-else>Регистрация <i class="fas fa-house-user"></i></span>
@@ -51,8 +51,8 @@
                             <!-- <div class="card-body py-1">
 
                             </div> -->
-                            <div class="card-footer form-horizontal p-0">
-                                <div class="row justify-content-end pr-4">
+                            <div class="card-footer form-horizontal py-0">
+                                <div class="row justify-content-end pr-3">
                                     <a v-if="history === 'True'"
                                         :href="'/administration/participant_card_actions_journal/?participant_id='+ participant_id"
                                         class="btn btn-sm blue-grey">

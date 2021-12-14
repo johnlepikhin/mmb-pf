@@ -8,7 +8,11 @@
 {% endblock %}
 
 {% block body %}
-
+<script>
+$('#modal-container').modal({
+    focus: false
+});
+</script>
 <div class="page">
     {% include "header.html" %}
     <div id="participant_card_edit" class="mt-1 p-2">
@@ -33,12 +37,12 @@
                     <div class="col-md-12 pr-2">
                         <div class="card mb-1">
                             <div class="card-header white">
-                                <div class="row app-header justify-content-between">
-                                    <div class="my-auto ml-3">
+                                <div class="row app-header">
+                                    <div class="col-12 col-sm-8">
                                         -* participant.last_name *- -* participant.first_name *- -* participant.patronymic *-
-                                        <i v-if="participant_changed" class="far fa-save m-0 p-0 text-danger ml-2"></i>
                                     </div>
-                                    <div class="">
+                                    <div class="col-12 col-sm-4 text-right">
+                                        <i v-if="participant_changed" class="far fa-save m-0 p-0 text-danger ml-2"></i>
                                         <button class="btn btn-sm btn-outline-success" :disabled="! participant_changed" @click="sendForm(participant_id)">
                                             <span>Сохранить <i class="fas fa-user-edit"></i></span>
                                         </button>
@@ -64,25 +68,25 @@
                         <!-- Form card -->
                         <div class="card my-2">
                             <div class="card-body form-horizontal p-2">
-                                <div class="form-group row">
-                                    <label class="col-12 col-sm-9 my-auto text-bold text-gray">Зарегистрировать всю команду</label>
-                                    <div class="col-12 col-sm-3 my-auto">
-                                        <div class="row float-right">
-                                            <button
-                                                :class="universalBtnClass({key: reg_all_my_team, me: true})"
-                                                type="button"
-                                                @click="reg_all_my_team = true">
-                                                Да
-                                            </button>
-                                            <button
-                                                :class="universalBtnClass({key: reg_all_my_team, me: false})"
-                                                type="button"
-                                                @click="reg_all_my_team = false">
-                                                Нет
-                                            </button>
-                                        </div>
+                                <div class="form-group row d-flex justify-content-between px-3">
+                                    <label class="my-auto text-bold text-gray">Зарегистрировать</label>
+                                    <div>
+                                        <button
+                                            :class="universalBtnClass({key: reg_all_my_team, me: true})"
+                                            type="button"
+                                            @click="reg_all_my_team = true">
+                                            Команду
+                                        </button>
+                                        <button
+                                            :class="universalBtnClass({key: reg_all_my_team, me: false})"
+                                            type="button"
+                                            @click="reg_all_my_team = false">
+                                            Себя
+                                        </button>
                                     </div>
-                                    <span class="text-xsmall text-black-50 mx-3">
+                                </div>
+                                <div class="pb-0">
+                                    <span v-if="reg_all_my_team" class="text-xsmall text-black-50 mx-3">
                                         <i class="fas fa-info-circle"></i> Если участник вашей команды уже зарегистрировался, то его данные не будут перезаписаны
                                     </span>
                                 </div>
@@ -217,6 +221,11 @@
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="row d-flex justify-content-center">
+                                    <button class="btn btn-sm btn-outline-success" :disabled="! participant_changed" @click="sendForm(participant_id)">
+                                        <span>Сохранить <i class="fas fa-user-edit"></i></span>
+                                    </button>
                                 </div>
                                 <div class="line"></div>
                                 <div v-if="participant.modification_date" class="form-group row">

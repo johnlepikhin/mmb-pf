@@ -1,10 +1,10 @@
 from django.core.cache import cache
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
-from administration.models import SystemSettings
+from administration.models import MMBPFUsers, SystemSettings
 
-from .settings import BASE_DIR
-
-INSTANCE_PREF = str(BASE_DIR).replace("/", "-")
+from .settings import INSTANCE_PREF
 
 
 def get_system_status_cache(func):
@@ -103,26 +103,7 @@ def get_user_status_cache(func):
     return user_status_cache
 
 
-def get_addrbook_cache(func):
-    """
-    DECORATOR !
-    @get_addrbook_cache
-    def method():
-
-    Decorator for caching addrbook list result
-    """
-
-    def addrbook_cache(self, *args, **kwargs):
-        cache_name = f"{INSTANCE_PREF}-addrbook_cache"
-        cache_data = cache.get(cache_name)
-        if not cache_data:
-            cache_data = func(self, *args, **kwargs)    
-            cache.set(
-                cache_name,
-                cache_data,
-                SystemSettings.objects.get_option(name="addrbook_cache_ttl", default=3600),
-            )
-
-        return cache_data
-
-    return addrbook_cache
+@receiver(post_save, sender=MMBPFUsers)
+def clear_addrbook_cache(sender, instance, **kwargs):
+    cache_name = f"{INSTANCE_PREF}-addrbook_cache"
+    cache.delete(cache_name)
