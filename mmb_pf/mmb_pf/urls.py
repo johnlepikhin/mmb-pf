@@ -49,6 +49,7 @@ api_custom = [
         name="administraion_change_my_password",
     ),
     path(f"api/{APIVER}/administration/status/", administration_views_api.get_system_status, name="get_system_status"),
+    path(f"api/{APIVER}/administration/restart/", administration_views_api.system_restart, name="system_restart"),
     path(f"api/{APIVER}/administration/cleanup_db/", administration_views_api.cleanup_db, name="cleanup_db"),
     path(f"api/{APIVER}/addrbook/mmb_map/", addrbook_views_api.mmb_map, name="mmb_map"),
     path(f"api/{APIVER}/addrbook/change_mmb_map/", addrbook_views_api.change_mmb_map, name="change_mmb_map"),

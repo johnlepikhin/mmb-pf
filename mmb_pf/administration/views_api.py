@@ -1,4 +1,5 @@
 import json
+import os
 import re
 import shutil
 
@@ -235,3 +236,12 @@ def get_system_status(request):
     result["disk"]["free"] = free
 
     return JsonResponse(result, safe=False)
+
+
+@permission_required("administration.can_restart_mmb", raise_exception=True)
+def system_restart(request):
+    """
+    Used by button in the settings admin
+    """
+    os.system("touch /tmp/mmb_reload")
+    return JsonResponse({"msg": "Дочерние процессы будут перезапущены"}, status=200)

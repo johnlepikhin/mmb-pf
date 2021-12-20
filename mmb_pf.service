@@ -5,7 +5,7 @@ After=syslog.target postgresql.service
 [Service]
 User=mmb-pf
 Group=mmb-pf
-ExecStart=/opt/mmb_pf/venv/bin/uwsgi --ini /opt/mmb_pf/mmb_pf_uwsgi.ini
+ExecStart=/opt/mmb_pf/venv/bin/uwsgi --ini /opt/mmb_pf/mmb_pf_uwsgi.ini --touch-reload=/tmp/mmb_reload
 # Requires systemd version 211 or newer
 RuntimeDirectory=uwsgi_mmb_pf
 Restart=always

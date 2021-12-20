@@ -1,9 +1,42 @@
 {% extends 'admin/change_list.html' %}
 
 {% block object-tools %}
+    <script>
+        let reload_msg = document.getElementById('afterReloadMsg');
+        let reload_btn = document.getElementById('reloadButton');
+        function systemRestart() {
+            fetch('/api/v1/administration/restart/').then(response => {
+                document.getElementById('reloadButton').style.visibility = 'hidden';
+                response.text()
+                .then((text_data) => {
+                    try {
+                        return JSON.parse(text_data);
+                    } catch (err) {
+                        return text_data;
+                    }
+                }).then((json_data) => {
+                    if (response.status != 200) {
+                        document.getElementById('afterReloadMsg').innerHTML = json_data.msg;
+                    }
+                    document.getElementById('afterReloadMsg').style.visibility = 'visible';
+                });
+
+                let modal_show_timer_id = setTimeout(function () {
+                    window.location.reload();
+                }, 2000);
+            }).catch(response => {
+                console.log(response);
+                document.getElementById('afterReloadMsg').innerHTML = response.msg;
+                document.getElementById('afterReloadMsg').style.visibility = 'visible';
+            });
+        }
+    </script>
     <div class="row">
         <font size="4" color="#33b5e5" face="Arial">Информация!</font>
         <span class="h3"> Некоторые настройки требуют перезапуска системы для применения изменений</span>
+        <br>
+        <input id="reloadButton" type="button" onclick="systemRestart()" value="Перезапустить бекенд" style="color:white; background:rgb(250, 116, 101)">
+        <span id="afterReloadMsg" class="h3" style="visibility: hidden">Система перезагружается, страница будет обновлена автоматически</span>
     </div>
     <br>
     {{ block.super }}
