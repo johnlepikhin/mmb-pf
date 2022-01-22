@@ -51,6 +51,11 @@ api_custom = [
     path(f"api/{APIVER}/administration/status/", administration_views_api.get_system_status, name="get_system_status"),
     path(f"api/{APIVER}/administration/restart/", administration_views_api.system_restart, name="system_restart"),
     path(f"api/{APIVER}/administration/cleanup_db/", administration_views_api.cleanup_db, name="cleanup_db"),
+    path(
+        f"api/{APIVER}/administration/download_competitors_data/",
+        administration_views_api.download_competitors_data,
+        name="download_competitors_data",
+    ),
     path(f"api/{APIVER}/addrbook/mmb_map/", addrbook_views_api.mmb_map, name="mmb_map"),
     path(f"api/{APIVER}/addrbook/change_mmb_map/", addrbook_views_api.change_mmb_map, name="change_mmb_map"),
     path(f"api/{APIVER}/addrbook/addrbook_info/", addrbook_views_api.addrbook_info, name="addrbook_info"),

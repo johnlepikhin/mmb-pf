@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block main_menu %}
-    {% include "main_menu.html" %}
+{% include "main_menu.html" %}
 {% endblock %}
 
 {% block body %}
@@ -10,18 +10,18 @@
     <div id="database_operations" class="mt-1 p-2">
         {% include "modals.html" %}
         <div id="cleanup_db_modal"
-            class="modal fade show"
-            tabindex="-1"
-            role="dialog"
-            data-backdrop="static"
-            data-keyboard="false">
+             class="modal fade show"
+             tabindex="-1"
+             role="dialog"
+             data-backdrop="static"
+             data-keyboard="false">
             <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-xl" role="document">
                 <div class="modal-content">
                     <div class="modal-header bg-info">
-                    <h5 class="modal-title w-100 text-white">Будут удалены следующие данные</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
+                        <h5 class="modal-title w-100 text-white">Будут удалены следующие данные</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
                     </div>
                     <div class="modal-body">
                         <ul class="list-group text-left">
@@ -47,6 +47,37 @@
                 </div>
             </div>
         </div>
+        <div id="download_competitors_data_modal"
+             class="modal fade show"
+             tabindex="-1"
+             role="dialog"
+             data-backdrop="static"
+             data-keyboard="false">
+            <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-info">
+                        <h5 class="modal-title w-100 text-white">Будут удалены и загружены следующие данные</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <ul class="list-group text-left">
+                            <li class="list-group-item text-small text-black-50">
+                                <span class="mr-1">Все пользователи системы с типом "Участник"</span>
+                            </li>
+                            <li class="list-group-item text-small text-black-50">
+                                <span class="mr-1">Все команды</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-center">
+                        <a type="button" class="btn btn-sm btn-outline-danger" data-dismiss="modal" @click="download_competitors_data()">Применить</a>
+                        <a type="button" class="btn btn-sm btn-outline-info" data-dismiss="modal">Отказаться</a>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="row">
             <div class="col-12">
                 <div class="card mb-1">
@@ -57,12 +88,12 @@
                     </div>
                     <div v-if="! appLoading" class="card-body py-1">
                         <!-- <div class="row">
-                            <div class="col-sm-12 mx-0">
-                                <span class="text-xsmall text-gray mx-0">
-                                    <i class="fas fa-info-circle"></i> Информация обновляется не чаще чем раз в -*main_status.cfg.refresh_time*- сек.
-                                </span>
-                            </div>
-                        </div> -->
+                             <div class="col-sm-12 mx-0">
+                             <span class="text-xsmall text-gray mx-0">
+                             <i class="fas fa-info-circle"></i> Информация обновляется не чаще чем раз в -*main_status.cfg.refresh_time*- сек.
+                             </span>
+                             </div>
+                             </div> -->
                     </div>
                 </div>
                 <div v-if="appLoading" class="text-center py-5">
@@ -83,9 +114,11 @@
                                 </div>
                             </div>
                             <div class="card-body py-1">
-                                <div class="row">
+                                <div class="row d-flex justify-content-start my-auto">
                                     <div class="col-12 my-auto">
                                         <button class="btn btn-sm btn-outline-yellow" @click="$('#cleanup_db_modal').modal('show');">Очистить</button>
+                                        <button class="btn btn-sm btn-outline-yellow" @click="$('#download_competitors_data_modal').modal('show');">Загрузка участников</button>
+                                        <span v-if="competitors_loading">Участники загружаются</span>
                                     </div>
                                 </div>
                             </div>
@@ -139,42 +172,59 @@
     {% include "footer.html" %}
 </div>
 <script>
-    let database_operations = new Vue({
-        el: '#database_operations',
-        delimiters: ['-*', '*-'],
-        data: function () {
-            return {
-                appLoading: true,
-                err_msg: '',
-                response_success: '',
-                response_warn: '',
-                main_status: {},
-            }
-        },
-        methods: {
-            cleanup_db: function (args) {
-                let self = this;
-                getDataV2('/api/v1/administration/cleanup_db/').then(data => {
-                    self.err_msg = '';
-                    self.response_warn = '';
-                    self.response_success = data.msg;
-                    modal_show({id: '#modalResponseSuccess', timeout: 1500});
-                }).catch(err => {
-                    self.response_success = '';
-                    self.response_warn = err.msg;
-                    modal_show({id: '#modalResponseWarn'});
-                });
-            },
-        },
-        created() {
-            let self = this;
-            const loadable_fields = [
-                {'url': '/api/v1/administration/status/', 'var': 'main_status'},
-            ];
-            loadItems({'load': loadable_fields, 'self': self, 'sync': true}).then(() => {
-                self.appLoading = false;
-            });
-        },
-    })
+ let database_operations = new Vue({
+     el: '#database_operations',
+     delimiters: ['-*', '*-'],
+     data: function () {
+         return {
+             appLoading: true,
+             err_msg: '',
+             response_success: '',
+             response_warn: '',
+             main_status: {},
+             competitors_loading: false,
+         }
+     },
+     methods: {
+         cleanup_db: function (args) {
+             let self = this;
+             getDataV2('/api/v1/administration/cleanup_db/').then(data => {
+                 self.err_msg = '';
+                 self.response_warn = '';
+                 self.response_success = data.msg;
+                 modal_show({id: '#modalResponseSuccess', timeout: 1500});
+             }).catch(err => {
+                 self.response_success = '';
+                 self.response_warn = err.msg;
+                 modal_show({id: '#modalResponseWarn'});
+             });
+         },
+         download_competitors_data: function (args) {
+             let self = this;
+             self.competitors_loading = true;
+             getDataV2('/api/v1/administration/download_competitors_data/').then(data => {
+                 self.err_msg = '';
+                 self.response_warn = '';
+                 self.response_success = data.msg;
+                 modal_show({id: '#modalResponseSuccess', timeout: 1500});
+                 self.competitors_loading = false;
+             }).catch(err => {
+                 self.response_success = '';
+                 self.response_warn = err.msg;
+                 modal_show({id: '#modalResponseWarn'});
+                 self.competitors_loading = false;
+             });
+         },
+     },
+     created() {
+         let self = this;
+         const loadable_fields = [
+             {'url': '/api/v1/administration/status/', 'var': 'main_status'},
+         ];
+         loadItems({'load': loadable_fields, 'self': self, 'sync': true}).then(() => {
+             self.appLoading = false;
+         });
+     },
+ })
 </script>
 {% endblock %}

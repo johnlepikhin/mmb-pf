@@ -2,6 +2,9 @@ import json
 import os
 import re
 import shutil
+import requests
+import zipfile
+import tempfile
 
 from django.contrib.auth import password_validation, update_session_auth_hash
 from django.contrib.auth.decorators import permission_required
@@ -157,7 +160,79 @@ def cleanup_db(request):
     ImageStorage.objects.all().delete()
     ParticipantCardActionsJournal.objects.all().delete()
 
+    cache_name = f"{INSTANCE_PREF}-addrbook_cache"
+    cache.delete(cache_name)
+
     return JsonResponse({"msg": "База очищена"}, status=200, safe=False)
+
+
+@permission_required("administration.can_cleanup_db", raise_exception=True)
+def download_competitors_data(request):
+    """Extract teams data from main website."""
+    mainsite_url = SystemSettings.objects.get_option(name="mmb_main_website_url", default="https://mmb.progressor.ru/")
+    try:
+        res = requests.post(
+            mainsite_url,
+            data={
+                "action": "JsonExport",
+                "TeamId": "0",
+                "UserId": "0",
+                "RaidId": SystemSettings.objects.get_option(name="mmb_competition_id", default=0),
+                "OrderType": "Place",
+                "LevelPointId": "0",
+                "GPSFilter": "0",
+                "SexFilter": "0",
+                "AgeFilter": "0",
+                "UsersCountFilter": "0",
+            },
+        )
+    except Exception as exn:
+        return JsonResponse({"msg": f"При загрузке {mainsite_url} случилась ошибка: {exn}"}, status=405)
+
+    if res.status_code != 200:
+        return JsonResponse({"msg": f"Сайт {mainsite_url} вернул код {res.status_code}"}, status=405)
+
+    fd = tempfile.TemporaryFile()
+    fd.write(res.content)
+    zip_file = zipfile.ZipFile(fd)
+    json_file = zip_file.open("maindata.json")
+    res = json.load(json_file)
+
+    for elt in ["Teams", "Users", "TeamUsers"]:
+        if elt not in res:
+            return JsonResponse({"msg": f"Ключ {elt} не найден в JSON файла maindata.json"}, status=405)
+
+    MMBPFUsers.objects.filter(user_type=constant_models["USER_TYPE"]["default"]).delete()
+    Teams.objects.all().delete()
+    ImageStorage.objects.all().delete()
+    ParticipantCardActionsJournal.objects.all().delete()
+
+    team_objs = {}
+    for elt in res["Teams"]:
+        team_obj = Teams.objects.create(team_id=elt["team_num"], name=elt["team_name"])
+        team_objs[elt["team_id"]] = team_obj
+
+    team_users = {}
+    for elt in res["TeamUsers"]:
+        team_users[elt["user_id"]] = team_objs[elt["team_id"]]
+
+    for elt in res["Users"]:
+        names = elt["user_name"].split(" ", 1)
+        last_name = names[0]
+        first_name = ""
+        if len(names) > 1:
+            first_name = names[1]
+        MMBPFUsers.objects.create(
+            username=f"user{elt['user_id']}",
+            first_name=first_name,
+            last_name=last_name,
+            patronymic="",
+            gender=elt["user_sex"],
+            tourist_club="",  # TODO
+            team=team_users[elt["user_id"]],
+        )
+
+    return JsonResponse({"msg": f"Загружено {MMBPFUsers.objects.count()} участников"}, status=200, safe=False)
 
 
 @permission_required("administration.change_self_password", raise_exception=True)
