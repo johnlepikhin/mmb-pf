@@ -1,0 +1,59 @@
+
+- ставим пакеты (тут не все пакеты нужны для работы, часть для удобной эксплуатации и админства)
+
+apt install net-tools vim curl wget sudo nginx htop python3 python3-pip python3-venv libpcre3 libpcre3-dev rsync unzip policykit-1 libmemcached-tools memcached iptables-persistent libpq-dev git netcat
+
+- заходим в постгрес, админ открыт для юзера postgres и шуруем
+
+CREATE ROLE backuper WITH LOGIN SUPERUSER PASSWORD 'qwerty';
+CREATE USER mmb_pf WITH PASSWORD 'qwerty';
+drop database mmb_pf; CREATE DATABASE mmb_pf WITH OWNER mmb_pf template = template0 encoding = 'UTF8';
+
+После этого накатываем базу pg_restore - это написано в общей инструкции по развёртке стенда.
+пользователь backuper со всеми правами (я не заморачивался с разделением, чтобы он все базы мог бекапить) - нужен для бекапа
+
+скрипт бекапа на стенде /opt/backup/postgres_db_backup.sh
+так же не забыть разрешить этому пользователю лазить через локальный сокет, в конфиге 
+/etc/postgresql/13/main/pg_hba.conf
+
+пишем
+local   all             backuper                                trust
+
+Запускается кроном
+# DB backups
+0   2   *   *   *   /opt/backup/postgres_db_backup.sh mmb_pf
+
+Понятно что это противоречит правилам безопасности, но я исхожу из того что на сервере нет никого постороннего и нет смысла городить какието препоны ещё и внутри системы
+
+- я обычно логи скидываю в папку нгинкса, чтобы не заморачиваться с отдельным ротатором, поэтоу надо дать права (mmb-pf входит в группу adm, под ним работают воркеры нгинкса и uwsgi)
+
+chmod -R g+w /var/log/nginx/
+usermod -aG adm mmb-pf
+
+- копируем себе на новый хост /opt/mmb_pf/ кроме venv, так как его придётся на новой системе пересоздать
+
+mkdir -p /opt/mmb_pf/venv
+cd /opt/mmb_pf/
+python3 -m venv ./venv/
+source venv/bin/activate
+
+Ставим питоновые пакеты в венв
+cd /opt/mmb_pf/mmb_pf
+pip3 install -r requirements.txt
+
+- подключаем nginx, конфиг есть в 
+
+/opt/mmb_pf/etc/nginx_cfg/mmb_pf.conf
+
+- регистрируем свой сервис и запускаем всё 
+
+ln -s /opt/mmb_pf/mmb_pf.service /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable mmb_pf
+systemctl start mmb_pf
+systemctl enable nginx
+systemctl enable memcached
+
+- Ещё надо прописать твой домен или айпишник в ALLOWED_HOSTS джанги - тот по которому ты сайт будешь открывать, иначе он не пропустит
+
+/opt/mmb_pf/mmb_pf/mmb_pf/settings.py
