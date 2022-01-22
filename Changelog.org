@@ -1,4 +1,15 @@
 * Changelog
+** [2022-01-22] v1.0.0
+
+*** BREAKING CHANGES
+
+ - Bump version (0d335ca)
+
+*** Bugfixes
+
+ - Bump version (0d335ca)
+
+
 
 ** [2022-01-22] v0.1.0
 
