@@ -194,7 +194,10 @@ def download_competitors_data(request):
 
     fd = tempfile.TemporaryFile()
     fd.write(res.content)
-    zip_file = zipfile.ZipFile(fd)
+    try:
+        zip_file = zipfile.ZipFile(fd)
+    except Exception as exn:
+        return JsonResponse({"msg": f"При распаковке zip-архива случилась ошибка: {exn}"}, status=405)
     json_file = zip_file.open("maindata.json")
     res = json.load(json_file)
 
