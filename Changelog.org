@@ -1,0 +1,43 @@
+* Changelog
+
+** [2022-01-22] v0.1.0
+
+*** New features
+
+ - Load teams and members (83191e8)
+ - Added INSTALL.txt (da5de69)
+
+*** Bugfixes
+
+ - Catch bad zip file exception (7ff60c6)
+
+*** Other changes
+
+ - Merge pull request #1 from johnlepikhin/feat/load-users (1f73934)
+ - ver 0.9.4 (fd04534)
+ - ver 0.9.3 (8b55a68)
+ - ver 0.9.2 (38c8cfb)
+ - add user generator (31a9247)
+ - ver 0.9.1 fixes (b89d14d)
+ - ver 0.9.0 alpha ready (4238f91)
+ - ver 0.9.0 (41809e4)
+ - fix typo (30cdf60)
+ - ver 0.8.0 (5686a69)
+ - fix lineendings (a36631d)
+ - ver 0.7.0 fixes (69cd492)
+ - ver 0.7.0 (addab5f)
+ - ver 0.6.0 (6176eab)
+ - ver 0.5.0 (5050375)
+ - ver 0.4.0 (e006db1)
+ - vers 0.3.0 (3df7013)
+ - updates (c0d6cfe)
+ - ver 0.2.0 (9b289ee)
+ - add unique to caches (3b3d7b8)
+ - ver 0.1.0 (9bfa0ce)
+ - add memcache decorators (3d78e50)
+ - rearrange settings (8ee4ba1)
+ - add addrbook app (2b7199b)
+ - change settings filename (9cc51e1)
+ - initial system v0.0.1 (318bb17)
+ - init (373dcec)
+
