@@ -198,8 +198,14 @@ def download_competitors_data(request):
         zip_file = zipfile.ZipFile(fd)
     except Exception as exn:
         return JsonResponse({"msg": f"При распаковке zip-архива случилась ошибка: {exn}"}, status=405)
-    json_file = zip_file.open("maindata.json")
-    res = json.load(json_file)
+    try:
+        json_file = zip_file.open("maindata.json")
+    except Exception as exn:
+        return JsonResponse({"msg": f"При распаковке maindata.json из zip-архива случилась ошибка: {exn}"}, status=405)
+    try:
+        res = json.load(json_file)
+    except Exception as exn:
+        return JsonResponse({"msg": f"Не удалось распарсить maindata.json: {exn}"}, status=405)
 
     for elt in ["Teams", "Users", "TeamUsers"]:
         if elt not in res:
