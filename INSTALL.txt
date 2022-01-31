@@ -1,7 +1,7 @@
 
 - ставим пакеты (тут не все пакеты нужны для работы, часть для удобной эксплуатации и админства)
 
-apt install net-tools vim curl wget sudo nginx htop python3 python3-pip python3-venv libpcre3 libpcre3-dev rsync unzip policykit-1 libmemcached-tools memcached iptables-persistent libpq-dev git netcat
+apt install net-tools vim curl wget sudo nginx htop python3 python3-pip python3-venv libpcre3 libpcre3-dev rsync unzip policykit-1 libmemcached-tools memcached iptables-persistent libpq-dev git netcat libffi-dev libjpeg-dev
 
 - заходим в постгрес, админ открыт для юзера postgres и шуруем
 
