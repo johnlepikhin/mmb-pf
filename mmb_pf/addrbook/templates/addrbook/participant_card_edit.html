@@ -4,14 +4,14 @@
 {% endblock %}
 
 {% block main_menu %}
-    {% include "main_menu.html" %}
+{% include "main_menu.html" %}
 {% endblock %}
 
 {% block body %}
 <script>
-$('#modal-container').modal({
-    focus: false
-});
+    $('#modal-container').modal({
+        focus: false
+    });
 </script>
 <div class="page">
     {% include "header.html" %}
@@ -20,7 +20,8 @@ $('#modal-container').modal({
         <div class="row">
             <div class="col-12">
                 <div v-if="appLoading" class="text-center py-5">
-                    <div class="logo-wrapper spinner-grow text-info" role="status" style="width: 3rem; height: 3rem;"></div>
+                    <div class="logo-wrapper spinner-grow text-info" role="status" style="width: 3rem; height: 3rem;">
+                    </div>
                 </div>
                 <div v-else-if="err_msg" class="pt-2 px-2">
                     <div class="alert alert-danger">
@@ -39,11 +40,13 @@ $('#modal-container').modal({
                             <div class="card-header white">
                                 <div class="row app-header">
                                     <div class="col-12 col-sm-8">
-                                        -* participant.last_name *- -* participant.first_name *- -* participant.patronymic *-
+                                        -* participant.last_name *- -* participant.first_name *- -*
+                                        participant.patronymic *-
                                     </div>
                                     <div class="col-12 col-sm-4 text-right">
                                         <i v-if="participant_changed" class="far fa-save m-0 p-0 text-danger ml-2"></i>
-                                        <button class="btn btn-sm btn-outline-success" :disabled="! participant_changed" @click="sendForm(participant_id)">
+                                        <button class="btn btn-sm btn-outline-success" :disabled="! participant_changed"
+                                            @click="sendForm(participant_id)">
                                             <span>Сохранить <i class="fas fa-user-edit"></i></span>
                                         </button>
                                     </div>
@@ -56,7 +59,8 @@ $('#modal-container').modal({
                                 <div class="row">
                                     <div class="col-sm-12 mx-0">
                                         <span class="text-xsmall text-warning mx-0">
-                                            <i class="fas fa-exclamation-circle"></i> Пожалуйста не изменяйте чужие данные
+                                            <i class="fas fa-exclamation-circle"></i> Пожалуйста не изменяйте чужие
+                                            данные
                                         </span>
                                     </div>
                                 </div>
@@ -71,30 +75,28 @@ $('#modal-container').modal({
                                 <div class="form-group row d-flex justify-content-between px-3">
                                     <label class="my-auto text-bold text-gray">Зарегистрировать</label>
                                     <div>
-                                        <button
-                                            :class="universalBtnClass({key: reg_all_my_team, me: true})"
-                                            type="button"
-                                            @click="reg_all_my_team = true">
+                                        <button :class="universalBtnClass({key: reg_all_my_team, me: true})"
+                                            type="button" @click="reg_all_my_team = true">
                                             Команду
                                         </button>
-                                        <button
-                                            :class="universalBtnClass({key: reg_all_my_team, me: false})"
-                                            type="button"
-                                            @click="reg_all_my_team = false">
+                                        <button :class="universalBtnClass({key: reg_all_my_team, me: false})"
+                                            type="button" @click="reg_all_my_team = false">
                                             Себя
                                         </button>
                                     </div>
                                 </div>
                                 <div class="pb-0">
                                     <span v-if="reg_all_my_team" class="text-xsmall text-black-50 mx-3">
-                                        <i class="fas fa-info-circle"></i> Если участник вашей команды уже зарегистрировался, то его данные не будут перезаписаны
+                                        <i class="fas fa-info-circle"></i> Если участник вашей команды уже
+                                        зарегистрировался, то его данные не будут перезаписаны
                                     </span>
                                 </div>
                                 <div class="line"></div>
                                 <div class="form-group row mb-2">
                                     <label class="col-sm-3 my-auto text-bold text-gray">ФИО</label>
                                     <div class="col-sm-9 my-auto">
-                                        <span class="">-* participant.last_name *- -* participant.first_name *- -* participant.patronymic *-</span>
+                                        <span class="">-* participant.last_name *- -* participant.first_name *- -*
+                                            participant.patronymic *-</span>
                                     </div>
                                 </div>
                                 <div class="form-group row mb-2">
@@ -106,23 +108,19 @@ $('#modal-container').modal({
                                 <div class="form-group row mb-2">
                                     <label class="col-sm-3 my-auto text-bold text-gray">Турклуб</label>
                                     <div class="col-sm-9 my-auto">
-                                        <input type="text" class="form-control form-control-sm" v-model.trim="participant.tourist_club">
+                                        <input type="text" class="form-control form-control-sm"
+                                            v-model.trim="participant.tourist_club">
                                     </div>
                                 </div>
                                 <div class="line"></div>
                                 <div class="form-group row mb-2">
                                     <label class="col-lg-3 my-auto text-bold text-gray">Улица</label>
                                     <div class="col-lg-9 my-auto">
-                                        <multiselect
-                                            v-model="participant.street"
-                                            :options=streets
-                                            :custom-label="obj => obj.name"
-                                            option-height="30"
+                                        <multiselect v-model="participant.street" :options=streets
+                                            :custom-label="obj => obj.name" option-height="30"
                                             placeholder="Выберите один из вариантов"
-                                            deselect-label="Нажмите для удаления"
-                                            select-label="Нажмите для выбора"
-                                            selected-label="Выбрано"
-                                            track-by="id"
+                                            deselect-label="Нажмите для удаления" select-label="Нажмите для выбора"
+                                            selected-label="Выбрано" track-by="id"
                                             :class="divBorderClass({classes: [], valid: validation.street})">
                                             <div slot="noResult">Ничего не найдено</div>
                                         </multiselect>
@@ -134,16 +132,12 @@ $('#modal-container').modal({
                                 <div class="form-group row mb-2">
                                     <label class="col-lg-3 my-auto text-bold text-gray">Указатель</label>
                                     <div class="col-lg-9 my-auto">
-                                        <multiselect
-                                            v-model="participant.sign"
+                                        <multiselect v-model="participant.sign"
                                             :options="participant.street ? participant.street.signes : []"
-                                            :custom-label="obj => obj.name"
-                                            option-height="30"
+                                            :custom-label="obj => obj.name" option-height="30"
                                             placeholder="Выберите один из вариантов"
-                                            deselect-label="Нажмите для удаления"
-                                            select-label="Нажмите для выбора"
-                                            selected-label="Выбрано"
-                                            track-by="id"
+                                            deselect-label="Нажмите для удаления" select-label="Нажмите для выбора"
+                                            selected-label="Выбрано" track-by="id"
                                             :class="divBorderClass({classes: [], valid: validation.sign})"
                                             :disabled="! participant.street">
                                             <div slot="noResult">Ничего не найдено</div>
@@ -156,9 +150,7 @@ $('#modal-container').modal({
                                 <div class="form-group row mb-2">
                                     <label class="col-lg-3 my-auto text-bold text-gray">Описание</label>
                                     <div class="col-lg-9 my-auto">
-                                        <ckeditor
-                                            :editor="editor"
-                                            v-model="participant.user_desc"
+                                        <ckeditor :editor="editor" v-model="participant.user_desc"
                                             :config="editorConfig">
                                         </ckeditor>
                                     </div>
@@ -166,17 +158,11 @@ $('#modal-container').modal({
                                 <div class="form-group row mb-2">
                                     <label class="col-lg-3 my-auto text-bold text-gray">Индивидуальный Указатель</label>
                                     <div class="col-lg-9 my-auto">
-                                        <multiselect
-                                            v-model="participant.custom_sign"
-                                            :options="customsignes"
-                                            :custom-label="obj => obj.name"
-                                            option-height="30"
+                                        <multiselect v-model="participant.custom_sign" :options="customsignes"
+                                            :custom-label="obj => obj.name" option-height="30"
                                             placeholder="Выберите один из вариантов"
-                                            deselect-label="Нажмите для удаления"
-                                            select-label="Нажмите для выбора"
-                                            selected-label="Выбрано"
-                                            track-by="id"
-                                            :disabled="! participant.street">
+                                            deselect-label="Нажмите для удаления" select-label="Нажмите для выбора"
+                                            selected-label="Выбрано" track-by="id" :disabled="! participant.street">
                                             <div slot="noResult">Ничего не найдено</div>
                                         </multiselect>
                                     </div>
@@ -190,30 +176,33 @@ $('#modal-container').modal({
                                         </label>
                                         <button
                                             :disabled="participant.images.length + new_images.length >= max_images_per_user"
-                                            type="button"
-                                            class="btn btn-outline-default btn-sm waves-effect"
+                                            type="button" class="btn btn-outline-default btn-sm waves-effect"
                                             @click="userphoto.click()">
                                             <i class="fas fa-plus fa-2x"></i>
                                         </button>
-                                        <input type="file" multiple="multiple" id="userphoto" name="file1" style="display:none" @change="reg_image"/>
+                                        <input type="file" multiple="multiple" id="userphoto" name="file1"
+                                            style="display:none" @change="reg_image" />
                                     </div>
                                     <div class="col-lg-9 my-auto">
-                                        <div v-if="new_images.length" v-for="(image, index) in new_images" >
-                                            <div class="card card-image" :style="'background-size: cover; background-image: url(' + image.b64 + ');'">
-                                                <div class="text-white text-right px-3 py-3" style="height: 300px; max-width: 100%">
-                                                    <i
-                                                        class="far fa-minus-square fa-2x"
+                                        <div v-if="new_images.length" v-for="(image, index) in new_images">
+                                            <div class="card card-image"
+                                                :style="'background-size: cover; background-image: url(' + image.b64 + ');'">
+                                                <div class="text-white text-right px-3 py-3"
+                                                    style="height: 300px; max-width: 100%">
+                                                    <i class="far fa-minus-square fa-2x"
                                                         @click="unreg_image({'idx': index, 'new': true})"
                                                         :disabled="! new_images.length">
                                                     </i>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div v-if="participant.images.length" v-for="(image, index) in participant.images" >
-                                            <div class="card card-image" :style="'background-size: cover; background-image: url(' + image.href + ');'">
-                                                <div class="text-white text-right px-3 py-3" style="height: 300px; max-width: 100%">
-                                                    <i
-                                                        class="far fa-minus-square fa-2x"
+                                        <div v-if="participant.images.length"
+                                            v-for="(image, index) in participant.images">
+                                            <div class="card card-image"
+                                                :style="'background-size: cover; background-image: url(' + image.href + ');'">
+                                                <div class="text-white text-right px-3 py-3"
+                                                    style="height: 300px; max-width: 100%">
+                                                    <i class="far fa-minus-square fa-2x"
                                                         @click="unreg_image({'idx': index, 'new': false})"
                                                         :disabled="! participant.images.length">
                                                     </i>
@@ -223,14 +212,16 @@ $('#modal-container').modal({
                                     </div>
                                 </div>
                                 <div class="row d-flex justify-content-center">
-                                    <button class="btn btn-sm btn-outline-success" :disabled="! participant_changed" @click="sendForm(participant_id)">
+                                    <button class="btn btn-sm btn-outline-success" :disabled="! participant_changed"
+                                        @click="sendForm(participant_id)">
                                         <span>Сохранить <i class="fas fa-user-edit"></i></span>
                                     </button>
                                 </div>
                                 <div class="line"></div>
                                 <div v-if="participant.modification_date" class="form-group row">
                                     <div class="col-sm-12 mx-0">
-                                        <span class="text-small text-gray mx-0"><i class="far fa-clock"></i> Версия от -*participant.modification_date*-</span>
+                                        <span class="text-small text-gray mx-0"><i class="far fa-clock"></i> Версия от
+                                            -*participant.modification_date*-</span>
                                     </div>
                                 </div>
                             </div>
@@ -290,7 +281,7 @@ $('#modal-container').modal({
             participant: {
                 handler(val) {
                     let self = this;
-                    if (! self.appLoading) {
+                    if (!self.appLoading) {
                         self.participant_changed = true;
                     }
                 },
@@ -298,7 +289,7 @@ $('#modal-container').modal({
             },
         },
         methods: {
-            unreg_image: function(args) {
+            unreg_image: function (args) {
                 let self = this;
                 if (args.new) { // new added images
                     self.new_images.splice(args.idx, 1);
@@ -307,41 +298,37 @@ $('#modal-container').modal({
                 }
                 self.participant_changed = true;
             },
-            reg_image: function(event) {
+            reg_image: function (event) {
                 let self = this;
-                Array.from(event.target.files).forEach(function(file_obj, i, arr) {
+                Array.from(event.target.files).forEach(function (file_obj, i, arr) {
                     if (i >= self.max_images_per_user)
                         return;
-                    loadImage.parseMetaData(file_obj, function(data) {
-                        let orientation = 0;
-                        if (data.exif) {
-                            orientation = data.exif.get('Orientation');
-                        }
-                        let loadingImage = loadImage(file_obj, function(canvas) {
+                    loadImage.parseMetaData(file_obj, function (data) {
+                        let loadingImage = loadImage(file_obj, function (canvas) {
                             try {
-                                canvas.toBlob(function(blob) {
+                                canvas.toBlob(function (blob) {
                                     self.new_images.push({
                                         // it is for sending to server
                                         'blob': blob,
                                         // it is for draw in the template
                                         'b64': canvas.toDataURL('image/jpeg'),
                                     });
-                                },'image/jpeg');
+                                }, 'image/jpeg');
                             } catch {
                                 self.response_warn = "Не удалось обработать изображение";
-                                modal_show({id: '#modalResponseWarn'});
+                                modal_show({ id: '#modalResponseWarn' });
                             }
                         },
-                        {
-                            canvas: true,
-                            orientation: orientation,
-                            maxWidth: 1920,
-                        });
+                            {
+                                canvas: true,
+                                orientation: true,
+                                maxWidth: 1920,
+                            });
                     });
                 });
                 self.participant_changed = true;
             },
-            sendForm: function(formid) {
+            sendForm: function (formid) {
                 let self = this;
                 let all_valid = checkFormFields({
                     form_checks: self.form_checks,
@@ -351,9 +338,9 @@ $('#modal-container').modal({
 
                 if (all_valid) {
                     let files = [];
-                    self.new_images.forEach(function(obj, i, arr) {
+                    self.new_images.forEach(function (obj, i, arr) {
                         files.push({
-                            key: "participant_img_"+i,
+                            key: "participant_img_" + i,
                             obj: obj.blob,
                         });
                     });
@@ -373,16 +360,16 @@ $('#modal-container').modal({
                         window.location.replace("/addrbook/participant/" + formid + "/");
                     }).catch(err => {
                         self.response_warn = err.msg;
-                        modal_show({id: '#modalResponseWarn'});
+                        modal_show({ id: '#modalResponseWarn' });
                     });
                 } else {
                     self.response_warn = 'Некоторые поля заполнены неверно, проверьте пожалуйста';
-                    modal_show({id: '#modalResponseWarn'});
+                    modal_show({ id: '#modalResponseWarn' });
                 }
             },
             getForm: function (formid) {
                 let self = this;
-                getDataV2('/api/v1/administration/users/' + formid + '/', {status: true}).then(data => {
+                getDataV2('/api/v1/administration/users/' + formid + '/', { status: true }).then(data => {
                     if (data.status === 403) {
                         self.info_msg = data.data.msg;
                     } else if (data.status === 404) {
@@ -401,11 +388,11 @@ $('#modal-container').modal({
         created() {
             let self = this;
             const loadable_fields = [
-                {'url': '/api/v1/addrbook/streets/', 'var': 'streets'},
-                {'url': '/api/v1/addrbook/customsignes/', 'var': 'customsignes'},
+                { 'url': '/api/v1/addrbook/streets/', 'var': 'streets' },
+                { 'url': '/api/v1/addrbook/customsignes/', 'var': 'customsignes' },
             ];
 
-            loadItems({'load': loadable_fields, 'self': self, 'sync': false}).then(() => {
+            loadItems({ 'load': loadable_fields, 'self': self, 'sync': false }).then(() => {
                 self.getForm(self.participant_id);
             });
         },

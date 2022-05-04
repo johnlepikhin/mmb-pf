@@ -15,7 +15,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-MMB_PF_VERSION = "1.0.0"
+MMB_PF_VERSION = "1.0.1"
 logger = logging.getLogger(__name__)
 logger.critical(
     f"{'#'*80}\n# MMB PF v{MMB_PF_VERSION} started: {datetime.now().strftime('%d.%m.%Y %H:%M')}\n{'#'*80}\n"

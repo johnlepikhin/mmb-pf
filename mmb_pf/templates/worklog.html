@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block main_menu %}
-    {% include "main_menu.html" %}
+{% include "main_menu.html" %}
 {% endblock %}
 
 {% block body %}
@@ -13,7 +13,8 @@
                 <div class="card card-list">
                     <div class="card-header white d-flex justify-content-between align-items-center py-3">
                         <div class="col-12">
-                            <p class="h5-responsive font-weight-bold mb-0 mx-auto app-header">Журнал разработки системы</p>
+                            <p class="h5-responsive font-weight-bold mb-0 mx-auto app-header">Журнал разработки системы
+                            </p>
                             <ul class="list-unstyled d-flex align-items-center mb-0">
 
                                 <!-- <li><i class="far fa-window-minimize fa-sm pl-3"></i></li>
@@ -25,17 +26,26 @@
                         <div class="row">
                             <ul class="nav nav-tabs" id="stageTabs" role="tablist">
                                 <li class="nav-item">
-                                    <a class="nav-link" id="stage1-tab" role="tab" @click="current_tab='stage1'" data-toggle="tab">Этап 1 (v0.1.0 - v1.x.x)</a>
+                                    <a class="nav-link" id="stage1-tab" role="tab" @click="current_tab='stage1'"
+                                        data-toggle="tab">Этап 1 (v0.1.0 - v1.x.x)</a>
                                 </li>
                             </ul>
                         </div>
                         <div class="row">
                             <div class="col-12 mt-3">
-                                <span class="h3 text-black-50"><i class="fas fa-tools"></i> Текущий прогресс разработки</span>
+                                <span class="h3 text-black-50"><i class="fas fa-tools"></i> Текущий прогресс
+                                    разработки</span>
                                 <div class="progress">
-                                    <div class="progress-bar bg-success" role="progressbar" :style="calcWidthPb({get_class: 'success', 'data': table_data[current_tab]})">-* calcWidthPb({'get_pct': 'success', 'data': table_data[current_tab]}) *-</div>
-                                    <div class="progress-bar progress-bar-striped bg-warning" role="progressbar" :style="calcWidthPb({get_class: 'warning', 'data': table_data[current_tab]})"></div>
-                                    <div class="progress-bar bg-info progress-bar-striped progress-bar-animated" role="progressbar" :style="calcWidthPb({get_class: 'info', 'data': table_data[current_tab]})"></div>
+                                    <div class="progress-bar bg-success" role="progressbar"
+                                        :style="calcWidthPb({get_class: 'success', 'data': table_data[current_tab]})">-*
+                                        calcWidthPb({'get_pct': 'success', 'data': table_data[current_tab]}) *-</div>
+                                    <div class="progress-bar progress-bar-striped bg-warning" role="progressbar"
+                                        :style="calcWidthPb({get_class: 'warning', 'data': table_data[current_tab]})">
+                                    </div>
+                                    <div class="progress-bar bg-info progress-bar-striped progress-bar-animated"
+                                        role="progressbar"
+                                        :style="calcWidthPb({get_class: 'info', 'data': table_data[current_tab]})">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -47,7 +57,8 @@
                                     <th scope="col">#</th>
                                     <th scope="col">Блок</th>
                                     <th scope="col">Описание</th>
-                                    <th scope="col"><i class="d-block d-md-none far fa-lightbulb"></i><span class="d-none d-md-block"> Состояние</span></th>
+                                    <th scope="col"><i class="d-block d-md-none far fa-lightbulb"></i><span
+                                            class="d-none d-md-block"> Состояние</span></th>
                                 </tr>
                             </thead>
                             <tbody class="autoincrement">
@@ -56,9 +67,9 @@
                                     <td><a class="text-primary" :href="data_row.href">-* data_row.name *-</a></td>
                                     <td class="pt-2 pb-0">-* data_row.desc *-</td>
                                     <td><span :class="task_categories[data_row.status].statuses_classes">
-                                        <i :class="task_categories[data_row.status].badge_icon_classes"></i>
-                                        <span class="d-none d-md-block"> -* data_row.status *- </span>
-                                    </span></td>
+                                            <i :class="task_categories[data_row.status].badge_icon_classes"></i>
+                                            <span class="d-none d-md-block"> -* data_row.status *- </span>
+                                        </span></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -157,8 +168,8 @@
                             'name': 'Юзабилити карточки пользователя',
                             'href': '#',
                             'desc': 'Надо при регистрации добавить возможность установить адрес на всю команду.' +
-                            ' И возможность копирования адреса с участника другой команды ' +
-                            '(вариант когда несколько команд. члены одного турклуба (тусовки) располагаются в одном месте).',
+                                ' И возможность копирования адреса с участника другой команды ' +
+                                '(вариант когда несколько команд. члены одного турклуба (тусовки) располагаются в одном месте).',
                             'status': 'Завершено',
                         },
                         {
@@ -171,7 +182,7 @@
                             'name': 'Проработать вопрос загрузки участников и другой инфы из основного сайта',
                             'href': '#',
                             'desc': 'Данные по участникам, командам и чтото ещё заводятся в другой системе, нам их надо к себе прогрузить.',
-                            'status': 'Работы не начинались',
+                            'status': 'Завершено',
                         },
                     ],
                 },
@@ -193,7 +204,7 @@
                     'Работы приостановлены': 0,
                     'В разработке': 0,
                 };
-                args.data.forEach(function(row_obj, i, arr) {
+                args.data.forEach(function (row_obj, i, arr) {
                     statusCalc[row_obj.status]++;
                 });
                 let type = args.get_class ? args.get_class : args.get_pct
