@@ -4,7 +4,7 @@
 {% endblock %}
 
 {% block main_menu %}
-    {% include "main_menu.html" %}
+{% include "main_menu.html" %}
 {% endblock %}
 
 {% block body %}
@@ -41,27 +41,32 @@
                                             <!--<div class="input-group-prepend">
                                                 <span class="input-group-text">Фильтр</span>
                                             </div>-->
-                                            <input type="text" class="form-control" placeholder="Имя | Команда | № Команды | Турклуб" v-model="filter_key">
+                                            <input type="text" class="form-control"
+                                                placeholder="Имя | Команда | № Команды | Турклуб" v-model="filter_key">
                                             <div class="input-group-append">
                                                 <span class="input-group-text btn-outline-grey">Поиск</span>
-                                                <button class="btn btn-md btn-sm btn-outline-grey m-0 px-3" type="button" @click="filter_key = ''">
+                                                <button class="btn btn-md btn-sm btn-outline-grey m-0 px-3"
+                                                    type="button" @click="filter_key = ''">
                                                     <span class="fas fa-times"></span>
                                                 </button>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="d-none d-sm-block col-sm-2 my-auto text-right">
-                                        <span class="text-gray text-small">Отобрано:<strong> -* participants_filtered.length *-</strong></span>
+                                        <span class="text-gray text-small">Отобрано:<strong> -*
+                                                participants_filtered.length *-</strong></span>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <span class="text-small text-gray pl-3">
-                                        <i class="fas fa-info-circle"></i> Для просмотра данных / регистрации нажмите на имя участника
+                                        <i class="fas fa-info-circle"></i> Для просмотра данных / регистрации нажмите на
+                                        имя участника
                                     </span>
                                 </div>
                                 <div>
-                                    <table class="table table-sm table-bordered table-responsive mb-0" style="display: inline-table;">
-                                        <thead class="teal lighten-1 text-center text-white w-100">
+                                    <table class="table table-sm table-bordered table-responsive mb-0"
+                                        style="display: inline-table;">
+                                        <thead class="teal lighten-2 text-center text-white w-100">
                                             <tr class="table-borderless">
                                                 <th v-for="header_obj in addrbook_list_cols" :class="header_obj.class">
                                                     <span v-html="header_obj.name"></span>
@@ -69,18 +74,34 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr v-for="user_obj in participants_filtered" class="text-center my-auto">
-                                                <!-- <td v-if="user_obj.rowspan_team" :rowspan="user_obj.rowspan_team" class="d-none d-sm-table-cell">
-                                                    -* user_obj.team.team_id *-
-                                                </td> -->
-                                                <td v-if="user_obj.rowspan_team" :rowspan="user_obj.rowspan_team" class="">
+                                            <tr v-for="user_obj in participants_filtered"
+                                                :class="addrbook_row_colorizer(user_obj.team)">
+                                                <td v-if="user_obj.rowspan_team" :rowspan="user_obj.rowspan_team"
+                                                    class="">
                                                     <span>№ -* user_obj.team.team_id *-</span>
-                                                    <span class="d-block d-sm-none">-* user_obj.team.name.trunc(10) *-</span>
-                                                    <span class="d-none d-sm-block">-* user_obj.team.name *-</span>
+                                                    <span class="d-block d-sm-none text-bold">-*
+                                                        user_obj.team.name.trunc(15)
+                                                        *-</span>
+                                                    <span class="d-none d-sm-block text-bold">-* user_obj.team.name
+                                                        *-</span>
+                                                    <div v-if="user_obj.team.finished" class="row">
+                                                        <div class="col-12">
+                                                            <span><i class="far fa-check-square fa-2x green-text"></i>
+                                                                <span v-if="user_obj.team.finished_date"
+                                                                    class="d-none d-sm-table-cell green-text">
+                                                                    Финишировал: -* user_obj.team.finished_date *-
+                                                                </span>
+                                                            </span>
+                                                        </div>
+                                                    </div>
                                                 </td>
                                                 <td v-if="user_obj.lfp" class="">
-                                                    <a class="text-info" :href="'/addrbook/participant/' + user_obj.id">-* user_obj.lfp *-</a><br>
-                                                    <span v-if="user_obj.tourist_club" class="text text-gray text-xsmall">(-* user_obj.tourist_club *-)</span>
+                                                    <a class="text-info"
+                                                        :href="'/addrbook/participant/' + user_obj.id">-* user_obj.lfp
+                                                        *-</a><br>
+                                                    <span v-if="user_obj.tourist_club"
+                                                        class="text text-gray text-xsmall">(-* user_obj.tourist_club
+                                                        *-)</span>
                                                 </td>
                                                 <td>
                                                     -* user_obj.street_name *- -* user_obj.sign_name *-
@@ -122,10 +143,6 @@
             addrbook_list_cols: [
                 // d-none d-lg-table-cell - show at big
                 // d-none d-sm-table-cell - show at medium
-                // {
-                //    name: 'Номер',
-                //    class: 'border-right d-none d-sm-table-cell',
-                // },
                 {
                     name: 'Команда',
                     class: 'border-right',
@@ -153,7 +170,7 @@
                 if (filter_key) {
                     participants = participants.filter(function (row) {
                         // protection against user without team
-                        if (! row.team)
+                        if (!row.team)
                             return false;
                         if (String(row.lfp).toLowerCase().indexOf(filter_key) > -1)
                             return true;
@@ -171,7 +188,7 @@
                 let ready_participants = [];
                 for (let [i, user_obj] of participants.entries()) {
                     // protection against user without team
-                    if (! user_obj.team) {
+                    if (!user_obj.team) {
                         continue;
                     }
                     user_obj['rowspan_team'] = 0;
@@ -194,10 +211,10 @@
         created() {
             let self = this;
             const loadable_fields = [
-                {'url': '/api/v1/administration/users/', 'var': 'participants'},
+                { 'url': '/api/v1/administration/users/', 'var': 'participants' },
             ];
 
-            loadItems({'load': loadable_fields, 'self': self, 'sync': true}).then(() => {
+            loadItems({ 'load': loadable_fields, 'self': self, 'sync': true }).then(() => {
                 self.appLoading = false;
             });
         },

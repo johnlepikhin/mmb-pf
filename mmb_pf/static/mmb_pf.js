@@ -6,8 +6,8 @@
                                 Prototypes
 ******************************************************************************/
 // Truncate string to defined length
-String.prototype.trunc = function(n) {
-    return this.substr(0,n-1)+(this.length>n?'...':'');
+String.prototype.trunc = function (n) {
+    return this.substr(0, n - 1) + (this.length > n ? '...' : '');
 };
 
 /******************************************************************************
@@ -165,7 +165,7 @@ function checkFormFields(args = {}) {
         }
         const re_field = new RegExp(args.form_checks[checked_field].re, "");
         if (args.form_checks[checked_field].type === 'check') {
-            if (! check_field_defined({val: args.data_to_check[checked_field], valid_0: args.form_checks[checked_field].valid_0})) {
+            if (!check_field_defined({ val: args.data_to_check[checked_field], valid_0: args.form_checks[checked_field].valid_0 })) {
                 args.validation[checked_field] = false;
                 all_checked = false;
             } else {
@@ -181,7 +181,7 @@ function checkFormFields(args = {}) {
                 }
             }
         } else if (args.form_checks[checked_field].type === 'check_if_filled') {
-            if (check_field_defined({val: args.data_to_check[checked_field], valid_0: args.form_checks[checked_field].valid_0})) {
+            if (check_field_defined({ val: args.data_to_check[checked_field], valid_0: args.form_checks[checked_field].valid_0 })) {
                 if (args.data_to_check[checked_field].toString().search(re_field) === -1) {
                     args.validation[checked_field] = false;
                     all_checked = false;
@@ -215,7 +215,7 @@ function checkFormFields(args = {}) {
 // }
 function check_field_defined(args) {
     let result = true;
-    if (! args.val) {
+    if (!args.val) {
         result = false;
         if (typeof args.val == 'number' && args.val == 0 && args.valid_0) {
             result = true;
@@ -300,13 +300,13 @@ function sendDataV2(args) {
             headers: headers,
             body: body_data
         })
-        .then(function (response) {
-            if (response.status.toString().search('^20\\d$') === -1) {
-                responseResolver(response, args).then((data) => reject(data));
-            } else {
-                responseResolver(response, args).then((data) => resolve(data));
-            }
-        });
+            .then(function (response) {
+                if (response.status.toString().search('^20\\d$') === -1) {
+                    responseResolver(response, args).then((data) => reject(data));
+                } else {
+                    responseResolver(response, args).then((data) => resolve(data));
+                }
+            });
     });
 }
 
@@ -326,20 +326,20 @@ promise
 function getDataV2(url, args = {}) {
     return new Promise((resolve, reject) => {
         fetch(url)
-        .then(response => {
-            if (args.status) {
-                return responseResolver(response, args).then((data) => resolve({ 'data': data, 'status': response.status }));
-            }
-            if (response.status === 404) {
-                return args.ok_404 ? resolve({}) : responseResolver(response, args).then((data) => reject(data));
-            } else if (response.status === 403) {
-                return args.ok_403 ? resolve({}) : responseResolver(response, args).then((data) => reject(data));
-            } else if (response.status.toString().search('^20\\d$') === -1) {
-                return responseResolver(response, args).then((data) => reject(data));
-            } else {
-                return responseResolver(response, args).then((data) => resolve(data));
-            }
-        })
+            .then(response => {
+                if (args.status) {
+                    return responseResolver(response, args).then((data) => resolve({ 'data': data, 'status': response.status }));
+                }
+                if (response.status === 404) {
+                    return args.ok_404 ? resolve({}) : responseResolver(response, args).then((data) => reject(data));
+                } else if (response.status === 403) {
+                    return args.ok_403 ? resolve({}) : responseResolver(response, args).then((data) => reject(data));
+                } else if (response.status.toString().search('^20\\d$') === -1) {
+                    return responseResolver(response, args).then((data) => reject(data));
+                } else {
+                    return responseResolver(response, args).then((data) => resolve(data));
+                }
+            })
     });
 }
 
@@ -364,24 +364,24 @@ function responseResolver(response, args = {}) {
                 });
         } else {
             response.text()
-            .then((text_data) => {
-                try {
-                    return JSON.parse(text_data);
-                } catch (err) {
-                    return text_data;
-                }
-            })
-            .then((result) => {
-                if (!args.no_modify_response) {
-                    if (!result) {
-                        result = { 'msg': response.status + ' ' + response.statusText };
+                .then((text_data) => {
+                    try {
+                        return JSON.parse(text_data);
+                    } catch (err) {
+                        return text_data;
                     }
-                    if (typeof result === "string" && !(args.ok_string_err)) {
-                        result = { 'msg': response.status + ' ' + response.statusText };
+                })
+                .then((result) => {
+                    if (!args.no_modify_response) {
+                        if (!result) {
+                            result = { 'msg': response.status + ' ' + response.statusText };
+                        }
+                        if (typeof result === "string" && !(args.ok_string_err)) {
+                            result = { 'msg': response.status + ' ' + response.statusText };
+                        }
                     }
-                }
-                resolve(result);
-            });
+                    resolve(result);
+                });
         }
     });
 }
@@ -583,29 +583,27 @@ function formStatusBtnClass(args) {
 }
 
 /*
-Used for colorizing event difficulty statuses badges
+Used for colorizing finished commands
 TAKE: {
     classes: [],
-    cat: '', # letter A, B, C
+    finished: true,
 }
 
 RETURN:
 class object {}
 */
-function eventDifficultyClass(args) {
-    let colors = {
-        'A': ['red', 'lighten-3'],
-        'B': ['yellow', 'lighten-3'],
-        'C': ['green', 'lighten-3'],
-    };
-
+function addrbook_row_colorizer(args) {
     let returnedClass = {
+        "text-center": true,
+        "my-auto": true,
     };
     for (idx in args.classes) {
         returnedClass[args.classes[idx]] = true;
     }
-    for (idx in colors[args.cat]) {
-        returnedClass[colors[args.cat][idx]] = true;
+
+    if (args.finished) {
+        returnedClass["teal"] = true;
+        returnedClass["lighten-5"] = true;
     }
     return returnedClass;
 }
@@ -656,16 +654,16 @@ function role_table_colorizer(args) {
     }
 
     if (args.idx === 0) {
-        returnedClass = colorRowClass({classes: default_classes, indxes:[0], cur_idx: args.idx});
+        returnedClass = colorRowClass({ classes: default_classes, indxes: [0], cur_idx: args.idx });
     } else if (args.role_obj.event_role_id == args.role_reserve_id) {
         returnedClass = colorRowClass({
             classes: default_classes,
-            indxes:[args.idx],
+            indxes: [args.idx],
             cur_idx: args.idx,
             color: ['lime', 'lighten-5'],
         });
     } else {
-        returnedClass = colorRowClass({classes: default_classes, indxes:[], cur_idx: args.idx});
+        returnedClass = colorRowClass({ classes: default_classes, indxes: [], cur_idx: args.idx });
     }
     return returnedClass;
 }
@@ -904,7 +902,7 @@ function modal_hide(args) {
 // }
 function copy_to_clipboard(args) {
     const el = document.createElement('textarea');
-    if (! ('add_site' in args) || args.add_site) {
+    if (!('add_site' in args) || args.add_site) {
         el.value = location.protocol + '//' + location.host
     }
     el.value += args.str;
@@ -928,7 +926,7 @@ USAGE: sumValues({'obj': loaded_data.form_statuses, 'key': 'val'})
 function sumValues(args) {
     let sum = 0;
     for (let el in args.obj) {
-        if (args.obj.hasOwnProperty( el )) {
+        if (args.obj.hasOwnProperty(el)) {
             sum += parseFloat(args.obj[el][args.key]);
         }
     }

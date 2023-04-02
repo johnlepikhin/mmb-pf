@@ -97,7 +97,6 @@ class DateTimeSecSerializer(serializers.Field):
             return datetime.strptime(data, "%d.%m.%Y %H:%M:%S").astimezone(timezone)
         return None
 
-
 class DateTimeJSONSerializer(serializers.Field):
     """Convert to/from json date"""
 

@@ -71,11 +71,7 @@ class StreetsAdmin(admin.ModelAdmin):
 
 
 class TeamsAdmin(admin.ModelAdmin):
-    list_display = [
-        "id",
-        "team_id",
-        "name",
-    ]
+    list_display = ["id", "team_id", "name", "finished"]
     list_display_links = [
         "team_id",
         "name",
@@ -98,6 +94,7 @@ class TeamsAdmin(admin.ModelAdmin):
                         "team_id",
                         "name",
                     ),
+                    ("finished", "finished_date"),
                 ]
             },
         ),

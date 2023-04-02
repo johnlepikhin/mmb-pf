@@ -82,6 +82,18 @@ class Teams(models.Model):
         help_text="Название Команды",
     )
 
+    finished = models.BooleanField(
+        default=False,
+        blank=True,
+        help_text="Команда финишировала",
+    )
+
+    finished_date = models.DateTimeField(
+        blank=True,
+        null=True,
+        help_text="Дата и время финиширования",
+    )
+
     def __str__(self):
         return str(self.name)
 

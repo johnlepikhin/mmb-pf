@@ -15,7 +15,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-MMB_PF_VERSION = "1.0.1"
+MMB_PF_VERSION = "1.1.0"
 logger = logging.getLogger(__name__)
 logger.critical(
     f"{'#'*80}\n# MMB PF v{MMB_PF_VERSION} started: {datetime.now().strftime('%d.%m.%Y %H:%M')}\n{'#'*80}\n"
@@ -37,6 +37,7 @@ SECRET_KEY = ""
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
+# * could be used for any host accept
 ALLOWED_HOSTS = ["62.109.19.127", "mmb-pf.fvds.ru", "fzeulf.mmb-pf.fvds.ru", "jl.mmb-pf.fvds.ru"]
 
 

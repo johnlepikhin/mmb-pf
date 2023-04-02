@@ -1,10 +1,14 @@
+# users and teams generator for testing purposes
+# can be executed as:
+# ./mmb_pf/manage.py shell < ./etc/generate_users.py
+
 import random
 import string
 
 from addrbook.models import Teams
 from administration.models import MMBPFUsers
 
-wanna_users_cnt = 1500
+wanna_users_cnt = 500
 generate_new_team = 0.3
 team_names = [
     "Шмакодавы",

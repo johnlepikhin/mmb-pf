@@ -2,6 +2,7 @@ from django.core.cache import cache
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from addrbook.models import Teams
 from administration.models import MMBPFUsers, SystemSettings
 
 from .settings import INSTANCE_PREF
@@ -104,6 +105,7 @@ def get_user_status_cache(func):
 
 
 @receiver(post_save, sender=MMBPFUsers)
+@receiver(post_save, sender=Teams)
 def clear_addrbook_cache(sender, instance, **kwargs):
     cache_name = f"{INSTANCE_PREF}-addrbook_cache"
     cache.delete(cache_name)

@@ -7,8 +7,8 @@ from addrbook.serializers import (
     CustomSignesSerializer,
     StreetSignesSerializer,
     StreetsSerializer,
+    TeamsSerializer,
 )
-from administration.models import ImageStorage, ParticipantCardActionsJournal
 from mmb_pf.common_serializers import (
     DateSerializer,
     DateTimeSecSerializer,
@@ -188,6 +188,7 @@ class MMBPFUserListSerializer(serializers.ModelSerializer):
     street_name = serializers.CharField(source="street.name", read_only=True, allow_null=True)
     sign_name = serializers.CharField(source="sign.name", read_only=True, allow_null=True)
     custom_sign_name = serializers.CharField(source="custom_sign.name", read_only=True, allow_null=True)
+    team = TeamsSerializer(read_only=True)
 
     class Meta:
         model = MMBPFUsers

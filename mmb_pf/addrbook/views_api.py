@@ -2,15 +2,15 @@ import json
 
 from django.contrib.auth.decorators import permission_required
 from django.http import JsonResponse
-from rest_framework import exceptions, viewsets
+from rest_framework import exceptions, mixins, viewsets
 from rest_framework.renderers import JSONRenderer
 
 from administration.models import ImageStorage, MMBPFUsers, SystemSettings
 from administration.serializers import ImageStorageSerializer
-from mmb_pf.common_services import get_constant_models
+from mmb_pf.common_services import check_api_request, get_constant_models
 
 from .models import CustomSignes, Streets, Teams
-from .serializers import CustomSignesSerializer, StreetsSerializer
+from .serializers import CustomSignesSerializer, StreetsSerializer, TeamsSerializer
 
 # from mmb_pf.drf_api import BaseModelPermissions
 constant_models = get_constant_models()
@@ -47,15 +47,31 @@ class CustomSignesViewSet(viewsets.ReadOnlyModelViewSet):
         raise exceptions.PermissionDenied("У вас нет прав для выполнения данного запроса")
 
 
+class TeamsViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
+    """
+    Used for set finished and finished date
+    """
+
+    renderer_classes = [JSONRenderer]
+    queryset = Teams.objects.order_by("team_id")
+    serializer_class = TeamsSerializer
+
+    # external update requests will be by extertnal team_id
+    lookup_field = "team_id"
+
+    # permission_classes = [BaseModelPermissions]
+
+    def permission_denied(self, request, message=None, code=None):
+        raise exceptions.PermissionDenied("У вас нет прав для выполнения данного запроса")
+
+
 ###############################################################################
 # Custom views
+@check_api_request({"methods": ["GET"]})
 def mmb_map(request):
     """
     get mmb map
     """
-    if request.method != "GET":
-        return JsonResponse({"msg": "Некорректный метод запроса, только GET"}, status=405)
-
     mmb_map_image_id = SystemSettings.objects.get_option(name="mmb_map_image_id", default=0)
     map_file = {}
     if mmb_map_image_id:
@@ -71,10 +87,8 @@ def mmb_map(request):
 
 
 @permission_required("administration.can_change_map", raise_exception=True)
+@check_api_request({"methods": ["POST"]})
 def change_mmb_map(request):
-    if request.method != "POST":
-        return JsonResponse({"msg": "Некорректный метод запроса, только POST"}, status=405)
-
     if not request.FILES:
         old_map_id = SystemSettings.objects.get_option(name="mmb_map_image_id", default=0)
         if old_map_id:
@@ -109,16 +123,14 @@ def change_mmb_map(request):
                 pass
 
         SystemSettings.objects.set_option(name="mmb_map_image_id", value=image_obj.id)
-        return JsonResponse({"msg": "Карта обновлена"}, status=200)
+        return JsonResponse({"msg": "Карта обновлена"})
 
 
+@check_api_request({"methods": ["GET"]})
 def addrbook_info(request):
     """
     get addrbook info
     """
-    if request.method != "GET":
-        return JsonResponse({"msg": "Некорректный метод запроса, только GET"}, status=405)
-
     addrbook_info_res = {
         "text": SystemSettings.objects.get_option(name="addrbook_text_info", default=""),
         "participants_cnt": MMBPFUsers.objects.filter(
@@ -131,22 +143,12 @@ def addrbook_info(request):
         "teams_cnt": Teams.objects.all().count(),
     }
 
-    return JsonResponse(addrbook_info_res, status=200)
+    return JsonResponse(addrbook_info_res)
 
 
 @permission_required("administration.can_change_info", raise_exception=True)
+@check_api_request({"methods": ["POST"], "json_keys": {"text": r".+"}})
 def change_addrbook_info(request):
-    if request.method != "POST":
-        return JsonResponse({"msg": "Некорректный метод запроса, только POST"}, status=405)
-
-    new_text_info = None
-    try:
-        new_text_info = json.loads(request.body)
-    except Exception:
-        return JsonResponse({"msg": "Тело запроса должно быть json строкой"}, status=415)
-
-    if "text" in new_text_info:
-        SystemSettings.objects.set_option(name="addrbook_text_info", value=new_text_info["text"])
-        return JsonResponse({"msg": "Информация обновлена"}, status=200)
-
-    return JsonResponse({"msg": "Некорректные данные запроса, не передан ключ text в jsondata"}, status=405)
+    new_text_info = json.loads(request.body)
+    SystemSettings.objects.set_option(name="addrbook_text_info", value=new_text_info["text"])
+    return JsonResponse({"msg": "Информация обновлена"})

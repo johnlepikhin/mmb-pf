@@ -3,12 +3,15 @@
 
 from django.http import JsonResponse
 
-import mmb_pf.mmb_pf_memcache as memcache
 from administration.models import MainMenu
+
+from .common_services import check_api_request
+from .mmb_pf_memcache import get_main_menu_cache, get_user_status_cache
 
 
 # @permission_required('administration.view_main_menu', raise_exception=True)
-@memcache.get_main_menu_cache
+@get_main_menu_cache
+@check_api_request({"methods": ["GET"]})
 def get_main_menu(request):
     """
     TAKE:
@@ -18,9 +21,6 @@ def get_main_menu(request):
     """
     main_menu = []
     main_menu_qs = None
-
-    if request.method != "GET":
-        return JsonResponse({"msg": "Некорректный метод запроса, разрешён только GET"}, status=405, safe=False)
 
     values = ["name", "menu_type", "tid", "icon", "items", "permission"]
     main_menu_qs = MainMenu.objects.filter(disabled=False).values(*values).order_by("order")
@@ -35,7 +35,7 @@ def get_main_menu(request):
 
 
 # @permission_required('administration.view_main_menu', raise_exception=True)
-@memcache.get_user_status_cache
+@get_user_status_cache
 def get_user_status(request):
     """
     TAKE:
@@ -51,4 +51,4 @@ def get_user_status(request):
     for group in request.user.groups.all():
         result["groups"].append(group.name)
 
-    return JsonResponse(result, safe=False)
+    return JsonResponse(result)

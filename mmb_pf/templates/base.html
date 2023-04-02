@@ -6,73 +6,78 @@
 -->
 <!DOCTYPE html>
 <html lang="ru">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>ММБ {% block title %}{% endblock %}</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon"/>
-        <link type="text/css" rel="stylesheet" href="/static/fontawesome-free/css/all.min.css">
-        <link type="text/css" rel="stylesheet" href="/static/mdb/css/bootstrap.min.css">
-        <link type="text/css" rel="stylesheet" href="/static/mdb/css/mdb.min.css">
-        <link type="text/css" rel="stylesheet" href="/static/mdb/css/style.css">
-        <link type="text/css" rel="stylesheet" href="/static/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css">
-        <script type="text/javascript" src="/static/mdb/js/jquery.min.js"></script>
-        <script type="text/javascript" src="/static/mdb/js/popper.min.js"></script>
-        <script type="text/javascript" src="/static/mdb/js/bootstrap.min.js"></script>
-        <script type="text/javascript" src="/static/vue.min.js"></script>
-        <script type="text/javascript" src="/static/mdb/js/mdb.min.js"></script>
-        <script type="text/javascript" src="/static/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js"></script>
-        <script type="text/javascript" src="/static/mmb_pf.js?v=3"></script>
-        <script type="text/javascript" src="/static/charts/Chart.min.js"></script>
-        <script type="text/javascript" src="/static/charts/vue-chartjs.min.js"></script>
-        <script type="text/javascript" src="/static/blueimp-gallery/blueimp-gallery.min.js"></script>
-        <link type="text/css" rel="stylesheet" href="/static/blueimp-gallery/blueimp-gallery.min.css">
-        <script type="text/javascript" src="/static/mmb_pf_vue_components.js?v=2"></script>
-        <script type="text/javascript" src="/static/mmb_pf_frontend.js?v=1"></script>
 
-        <!-- Other plugins -->
-        <script type="text/javascript" src="/static/moment.min.js"></script>
-        <script type="text/javascript" src="/static/load-image/load-image.all.min.js"></script>
-        <script type="text/javascript" src="/static/load-image/canvas-to-blob.min.js"></script>
-        <script type="text/javascript" src="/static/vue-bootstrap4-table.min.js"></script>
-        <link type="text/css" rel="stylesheet" href="/static/vue-ctk-date-time-picker/vue-ctk-date-time-picker.css">
-        <script type="text/javascript" src="/static/vue-ctk-date-time-picker/vue-ctk-date-time-picker.umd.min.js" charset="utf-8"></script>
-        <link type="text/css" rel="stylesheet" href="/static/vue-ctk-date-time-picker/vue-ctk-date-time-picker.css">
-        <script type="text/javascript" src="/static/ckeditor/ckeditor.js" charset="utf-8"></script>
-        <script type="text/javascript" src="/static/ckeditor/ckeditor-vue.js"></script>
-        <script type="text/javascript" src="/static/ckeditor/ru.js"></script>
-        <script type="text/javascript" src="/static/FileSaver.min.js"></script>
-        <script type="text/javascript" src="/static/vue-multiselect/vue-multiselect.min.js"></script>
-        <link type="text/css" rel="stylesheet" href="/static/vue-multiselect/vue-multiselect.min.css">
-        <link type="text/css" rel="stylesheet" href="/static/mmb_pf.css?v=5" media="all">
-    </head>
-    <body>
-        {% block main_menu %}
-        {% endblock %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>ММБ {% block title %}{% endblock %}</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon" />
+    <link type="text/css" rel="stylesheet" href="/static/fontawesome-free/css/all.min.css">
+    <link type="text/css" rel="stylesheet" href="/static/mdb/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="/static/mdb/css/mdb.min.css">
+    <link type="text/css" rel="stylesheet" href="/static/mdb/css/style.css">
+    <link type="text/css" rel="stylesheet" href="/static/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css">
+    <script type="text/javascript" src="/static/mdb/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/mdb/js/popper.min.js"></script>
+    <script type="text/javascript" src="/static/mdb/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/static/vue.min.js"></script>
+    <script type="text/javascript" src="/static/mdb/js/mdb.min.js"></script>
+    <script type="text/javascript"
+        src="/static/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js"></script>
+    <script type="text/javascript" src="/static/mmb_pf.js?v=4"></script>
+    <script type="text/javascript" src="/static/charts/Chart.min.js"></script>
+    <script type="text/javascript" src="/static/charts/vue-chartjs.min.js"></script>
+    <script type="text/javascript" src="/static/blueimp-gallery/blueimp-gallery.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="/static/blueimp-gallery/blueimp-gallery.min.css">
+    <script type="text/javascript" src="/static/mmb_pf_vue_components.js?v=2"></script>
+    <script type="text/javascript" src="/static/mmb_pf_frontend.js?v=1"></script>
 
-        {% block body %}
-        {% endblock %}
+    <!-- Other plugins -->
+    <script type="text/javascript" src="/static/moment.min.js"></script>
+    <script type="text/javascript" src="/static/load-image/load-image.all.min.js"></script>
+    <script type="text/javascript" src="/static/load-image/canvas-to-blob.min.js"></script>
+    <script type="text/javascript" src="/static/vue-bootstrap4-table.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="/static/vue-ctk-date-time-picker/vue-ctk-date-time-picker.css">
+    <script type="text/javascript" src="/static/vue-ctk-date-time-picker/vue-ctk-date-time-picker.umd.min.js"
+        charset="utf-8"></script>
+    <link type="text/css" rel="stylesheet" href="/static/vue-ctk-date-time-picker/vue-ctk-date-time-picker.css">
+    <script type="text/javascript" src="/static/ckeditor/ckeditor.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/ckeditor/ckeditor-vue.js"></script>
+    <script type="text/javascript" src="/static/ckeditor/ru.js"></script>
+    <script type="text/javascript" src="/static/FileSaver.min.js"></script>
+    <script type="text/javascript" src="/static/vue-multiselect/vue-multiselect.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="/static/vue-multiselect/vue-multiselect.min.css">
+    <link type="text/css" rel="stylesheet" href="/static/mmb_pf.css?v=5" media="all">
+</head>
 
-        <script>
-            const isIe = !!window.MSInputMethodContext && !!document.documentMode;
-            if (isIe) {
-                $('body').html(
-                    "<div class=\"alert alert-info w-80\" role=\"alert\">" +
-                    "   <h4 class=\"alert-heading\">К сожалению, этот браузер не поддерживается<\/h4>" +
-                    "   <p>Internet Explorer является устаревшим и его развитие прекращено в компании Microsoft.<\/p>" +
-                    "   <hr>"+
-                    "   <p class=\"mb-0\">Используйте любой современный браузер для работы с системой: <a href=\"https://www.google.com/chrome/?hl=ru\" class=\"text-bold text-primary\">Chrome</a>, \
+<body>
+    {% block main_menu %}
+    {% endblock %}
+
+    {% block body %}
+    {% endblock %}
+
+    <script>
+        const isIe = !!window.MSInputMethodContext && !!document.documentMode;
+        if (isIe) {
+            $('body').html(
+                "<div class=\"alert alert-info w-80\" role=\"alert\">" +
+                "   <h4 class=\"alert-heading\">К сожалению, этот браузер не поддерживается<\/h4>" +
+                "   <p>Internet Explorer является устаревшим и его развитие прекращено в компании Microsoft.<\/p>" +
+                "   <hr>" +
+                "   <p class=\"mb-0\">Используйте любой современный браузер для работы с системой: <a href=\"https://www.google.com/chrome/?hl=ru\" class=\"text-bold text-primary\">Chrome</a>, \
                     <a href=\"https://www.mozilla.org/ru/firefox/new/\" class=\"text-bold text-primary\">FireFox</a>, \
                     <a href=\"https://browser.yandex.ru/\" class=\"text-bold text-primary\">Yandex</a>, \
                     <a href=\"https://support.apple.com/ru_RU/downloads/safari\" class=\"text-bold text-primary\">Safari</a>, \
                     <a href=\"https://www.opera.com/ru/\" class=\"text-bold text-primary\">Opera</a><\/p>" +
-                    "</div>"
-                );
-            }
-        </script>
-        {% block script %}
-        {% endblock %}
-    </body>
+                "</div>"
+            );
+        }
+    </script>
+    {% block script %}
+    {% endblock %}
+</body>
+
 </html>
